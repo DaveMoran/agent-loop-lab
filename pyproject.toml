@@ -1,0 +1,9 @@
+[project]
+name = "agent-loop-lab"
+version = "0.1.0"
+description = "A from-scratch agent loop, plus a tiny shop app with injectable faults to point it at"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
