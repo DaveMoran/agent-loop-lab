@@ -17,6 +17,17 @@ Standard library only. Deterministic dummy data (15 products, 20 users). Every e
 The third one is deliberate: it leaves no error in the logs, so it can only be found by comparing orders to stock.
 Combine faults with commas.
 
+## Setup
+Needs Python 3.11+. The shop itself has no dependencies; the extras are for the agent and for tests.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[agent,dev]"
+cp .env.example .env    # then fill in OPENAI_API_KEY and ANTHROPIC_API_KEY
+SHOP_FAULTS=checkout_timeout python -m shop.simulate --n 200
+```
+`.env` and `.venv/` are gitignored.
+
 ## Try it
 ```bash
 SHOP_FAULTS=checkout_timeout python -m shop.simulate --n 200

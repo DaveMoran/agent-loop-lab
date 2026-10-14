@@ -5,5 +5,12 @@ description = "A from-scratch agent loop, plus a tiny shop app with injectable f
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+agent = ["openai", "anthropic", "httpx", "python-dotenv"]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = ["shop", "agent"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
