@@ -20,7 +20,10 @@ def search_logs(query, level="ALL", limit=20):
         # Step 1: Filter out all queries
         for line in file:
             is_match = False
-            line_as_json = json.loads(line)
+            try:
+                line_as_json = json.loads(line)
+            except json.JSONDecodeError:
+                continue
 
             # If no query sent, send max results
             if not query and level == "ALL":
