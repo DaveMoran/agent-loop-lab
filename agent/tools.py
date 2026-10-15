@@ -2,12 +2,28 @@
 Individual tools that the agent will call that will allow it to go back and forth with the client while 
 """
 
-from pprint import pprint
 import json
 
 from shop.logs import log_path
 
-from difflib import SequenceMatcher, get_close_matches
+SEARCH_LOGS_PARAMETERS = {
+    "type": "object",
+    "properties": {
+        "query": {
+            "type": "string",
+            "description": "The string to check against each line in the logs"
+        },
+        "level": {
+            "type": "string",
+            "description": "The level of the log to filter for"
+        },
+        "limit": {
+            "type": "number",
+            "description": "The maximum number of logs to return"
+        }
+    },
+    "required": ["query"]
+}
 
 
 def search_logs(query, level="ALL", limit=20):
