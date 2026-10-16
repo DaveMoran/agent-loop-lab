@@ -1,15 +1,20 @@
-from openai import OpenAI
-from dotenv import load_dotenv
+import json
+from pathlib import Path
 
-from agent.openai_raw import tool_definition, extract_tool_calls, tool_result
+from dotenv import load_dotenv
+from openai import OpenAI
+
+from agent.openai_raw import extract_tool_calls, tool_definition, tool_result
 from agent.tools import search_logs
 
-import json
+ARTIFACTS = Path(__file__).resolve().parents[1] / "artifacts" / "step2"
+OPENAI_FILE = ARTIFACTS / "openai_tool_request.json"
+OPENAI_SECOND = ARTIFACTS / "openai_second_request.json"
+OPENAI_FINAL = ARTIFACTS / "openai_final_response.json"
 
 if __name__ == "__main__":
 
     load_dotenv()
-
     client = OpenAI()
 
     input_list = [{"role": "user", "content": "Give me all logs that are warnings"}]
@@ -20,23 +25,17 @@ if __name__ == "__main__":
         input=input_list,
     )
 
-    # open and read the file after the appending:
-    with open("artifacts/step2/openai_tool_request.json", "w") as f:
+    with open(OPENAI_FILE, "w") as f:
         f.write(response.model_dump_json(indent=2))
 
-    # Save function call outputs for subsequent requests
     input_list += response.output
-
     tool_calls = extract_tool_calls(response.model_dump())
 
-    results = []
-
-    for call in tool_calls:        
+    for call in tool_calls:
         result = tool_result(call["id"], search_logs(**call["arguments"]))
         input_list.append(result)
 
-    # open and read the file after the appending:
-    with open("artifacts/step2/openai_second_request.json", "w") as f:
+    with open(OPENAI_SECOND, "w") as f:
         clean_input = [
             item.model_dump() if hasattr(item, 'model_dump') else item 
             for item in input_list
@@ -50,6 +49,5 @@ if __name__ == "__main__":
         input=input_list,
     )
 
-    # open and read the file after the appending:
-    with open("artifacts/step2/openai_final_response.json", "w") as f:
+    with open(OPENAI_FINAL, "w") as f:
         f.write(second_response.model_dump_json(indent=2))
