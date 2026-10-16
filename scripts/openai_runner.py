@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from agent.openai_raw import tool_definition, extract_tool_calls, tool_result
 from agent.tools import search_logs
 
+import json
+
 if __name__ == "__main__":
 
     load_dotenv()
@@ -33,15 +35,17 @@ if __name__ == "__main__":
         result = tool_result(call["id"], search_logs(**call["arguments"]))
         input_list.append(result)
 
-    print("Final input:")
-    print(input_list)
+    # open and read the file after the appending:
+    with open("artifacts/step2/openai_second_request.json", "w") as f:
+        clean_input = [
+            item.model_dump() if hasattr(item, 'model_dump') else item 
+            for item in input_list
+        ]
 
-    response = client.responses.create(
+        f.write(json.dumps({ "input": clean_input }))
+
+    second_response = client.responses.create(
         model="gpt-6-astra",
         tools=[tool_definition()],
         input=input_list,
     )
-
-    # open and read the file after the appending:
-    with open("artifacts/step2/openai_second_request.json", "w") as f:
-        f.write(response.model_dump_json(indent=2))
