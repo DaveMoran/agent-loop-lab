@@ -3,14 +3,14 @@ import json
 from agent.tools import SEARCH_LOGS_PARAMETERS
 
 # Define list of tools
-def tool_definition():
+def tool_definition() -> dict:
     return {
         "name": "search_logs",
         "description": "Search through the logs of the application",
         "input_schema": SEARCH_LOGS_PARAMETERS
     }
 
-def extract_tool_calls(response):
+def extract_tool_calls(response: dict) -> list[dict]:
     tool_calls = []
     for output in response["content"]:
         if output["type"] == "tool_use":
@@ -22,7 +22,7 @@ def extract_tool_calls(response):
 
     return tool_calls
 
-def tool_result(call_id, result):
+def tool_result(call_id: str, result) -> dict:
     return {
         "role": "user",
         "content": [
