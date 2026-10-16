@@ -1,0 +1,40 @@
+{
+  "id": "msg_011Cg5GpKyvxBmhpcbKvEDNQ",
+  "container": null,
+  "content": [
+    {
+      "signature": "CAQSvQUKEAgSGAI4AUIIdGhpbmtpbmcSDA8+Ns4+aaZUiTpdrhoMzgZk/tuzs2mp6ItJIjCuTZoSejYsX1xvKRCfR6dF52jYxdfGssVMjAjyX1GTkVJ/GSegeKKP1wLZ5E1oJP8q2gTcwwUOsCRiUYo4wGwuUdMvPZCGKpoFCkVr/AehIDEoV5b4fYOGiMX7Nwpe77LILeUOnQSHeaO0GZz2i2jl3mdd2xOlp+eDf7tLXn7+/Af2a+YPY30Oji7h1ZW5tBpbP+U9nMgJRxQ2ErE6EbYUzK802qPrXd3Fl9lKbe5TRF8jj01e9VWKn01DLIEuCdAXOTXw+g7l1YaRHuI+2SJIM4r3vd4dWKdYJ3uwFeX00aMbSeUEDaNL2bFMCN3DnL2VZ73QtN+QP1orAsjNYBO/PI5TrovHvTJwW7mk/PUSljPcSRkmr6eXEgEj7AZqB9n3AXfU03WVV+a8Ky27vYwdpM8/1Qhe7R9ZgguGTC4DFME0VTu2F4h51mGQRfM5qonvApnRfxcefLHjjNlorZTd/O3p7EQOZGZC+JE9QJ0+8fq0uDSufaXaGarbXNBCWeETnVVnXsRE8Ds+tMBRmzMCsTHNt1QXnDo1ebPC9y4kK3H8jshiIv+NgWKkRJHbX2Zcbo80J5g5mIfBmwrOBDTrj+smH9OE8lzMLkpkAvV8G8A5/Iy5N40bjUAabpnd1wE8/Rp73wxO7y/T95C4uX4VRwtrel9tgjxYtWPmkUAyIa5vlX1J7Gv1Q6x+REfZYG4dUG4KdFH5/uWS3Ga4KQhbnmyeDNeRuz1LhB/VLn8gMCwPcVdKy8YRQOO7RZLF0Fiz7KBXaw0knXLQBUqgXulfTtRb8Y4/nDr0zEHdXxTWOfY8XqUS1BOWn06npdQtgK0So9Bgj+pdxs8QLJa8QaD6NcNk5bJxrMreIdgmoxgB",
+      "thinking": "",
+      "type": "thinking"
+    },
+    {
+      "citations": null,
+      "text": "I found 4 warning logs, and all of them are the same kind of event: a checkout was rejected because product 2 was out of stock.\n\n| # | Timestamp (Unix) | Event | User ID | Product ID | Reason |\n|---|---|---|---|---|---|\n| 1 | 1792108866.641 | checkout_rejected | 15 | 2 | out_of_stock |\n| 2 | 1792108866.642 | checkout_rejected | 5 | 2 | out_of_stock |\n| 3 | 1792108866.642 | checkout_rejected | 11 | 2 | out_of_stock |\n| 4 | 1792108866.643 | checkout_rejected | 20 | 2 | out_of_stock |\n\nAll 4 happened within about 2 milliseconds, so several users tried to buy product 2 at almost the same moment after it had sold out. Rejecting them is the right result. But if this was a flash sale or a lot of people buying at once, you may want to make sure the item didn't get sold more times than you had in stock.\n\nI can also look up the error logs or the successful checkouts for product 2 if you want to check that.",
+      "type": "text"
+    }
+  ],
+  "diagnostics": null,
+  "model": "claude-opus-5-5",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 845,
+    "output_tokens": 400,
+    "output_tokens_details": {
+      "thinking_tokens": 31
+    },
+    "server_tool_use": null,
+    "service_tier": "standard",
+    "speed": "standard"
+  }
+}

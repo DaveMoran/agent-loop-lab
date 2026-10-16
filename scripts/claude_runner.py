@@ -44,12 +44,12 @@ if __name__ == "__main__":
 
         f.write(json.dumps({ "messages": clean_input }))
 
-    # second_response = client.messages.create(
-    #     model="claude-opus-5-5",
-    #     max_tokens=1024,
-    #     tools=[tool_definition()],
-    #     messages=messages,
-    # )
+    second_response = client.messages.create(
+        model="claude-opus-5-5",
+        max_tokens=1024,
+        tools=[tool_definition()],
+        messages=messages,
+    )
 
-    # with open(ANTHROPIC_FINAL, "w") as f:
-    #     f.write(second_response.model_dump_json(indent=2))
+    with open(ANTHROPIC_FINAL, "w") as f:
+        f.write(second_response.model_dump_json(indent=2))
