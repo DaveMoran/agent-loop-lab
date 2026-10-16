@@ -1,9 +1,16 @@
 """Tiny deterministic SQLite store. Same seed, same data, every time."""
+import os
 import random
 import sqlite3
+from pathlib import Path
 
 NAMES = ["Mug", "Poster", "Tote Bag", "Sticker Pack", "Notebook", "Lamp", "Hoodie",
          "Water Bottle", "Cap", "Candle", "Plant Pot", "Keychain", "Desk Mat", "Socks", "Pen Set"]
+
+
+def db_path() -> Path:
+    """Where the simulator persists the store: SHOP_DB, or data/shop.db. Read at call time."""
+    return Path(os.environ.get("SHOP_DB", "data/shop.db"))
 
 
 def connect(path: str = ":memory:") -> sqlite3.Connection:
