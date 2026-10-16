@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     client = Anthropic()
 
-    messages = [{"role": "user", "content": "Give me all WARN logs"}]
+    messages = [{"role": "user", "content": "Give me all logs that are warnings"}]
 
     response = client.messages.create(
         model="claude-opus-5-5",
@@ -20,4 +20,3 @@ if __name__ == "__main__":
     #open and read the file after the appending:
     with open("artifacts/step2/anthropic_tool_request.json", "w") as f:
         f.write(response.model_dump_json(indent=2))
-        
