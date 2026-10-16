@@ -15,6 +15,7 @@ SEARCH_LOGS_PARAMETERS = {
         },
         "level": {
             "type": "string",
+            "enum": ["INFO", "WARN", "ERROR"],
             "description": "The level of the log to filter for"
         },
         "limit": {
@@ -22,7 +23,8 @@ SEARCH_LOGS_PARAMETERS = {
             "description": "The maximum number of logs to return"
         }
     },
-    "required": ["query"]
+    "required": ["query"],
+    "additionalProperties": False
 }
 
 
