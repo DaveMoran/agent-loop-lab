@@ -1,7 +1,7 @@
 {
-  "id": "resp_02bbb739cdd48b7c006ad19320a5fc87d29699ebcb97ec4746",
+  "id": "resp_01f638f4ce4ddcff006ad19bcd0e7087d2a3cb8395ead717f3",
   "access_programs": null,
-  "created_at": 1792119584.0,
+  "created_at": 1792121805.0,
   "error": null,
   "incomplete_details": null,
   "instructions": null,
@@ -11,10 +11,10 @@
   "output": [
     {
       "arguments": "{\"query\":\"\",\"level\":\"WARN\",\"limit\":2147483647}",
-      "call_id": "call_VU5KbvnsBtaZMpgO8EGcgRZ4",
+      "call_id": "call_LnWDKmNagxVgSZrJJVeizdIq",
       "name": "search_logs",
       "type": "function_call",
-      "id": "fc_02bbb739cdd48b7c006ad19321cb7c87d2b258e3785ea51d21",
+      "id": "fc_01f638f4ce4ddcff006ad19bcecb2087d28843dfc6e17fbbe1",
       "async_": null,
       "caller": null,
       "namespace": null,
@@ -66,7 +66,7 @@
   ],
   "top_p": 0.98,
   "background": false,
-  "completed_at": 1792119586.0,
+  "completed_at": 1792121807.0,
   "conversation": null,
   "max_output_tokens": null,
   "max_tool_calls": null,

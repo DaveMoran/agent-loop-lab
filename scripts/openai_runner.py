@@ -49,3 +49,7 @@ if __name__ == "__main__":
         tools=[tool_definition()],
         input=input_list,
     )
+
+    # open and read the file after the appending:
+    with open("artifacts/step2/openai_final_response.json", "w") as f:
+        f.write(second_response.model_dump_json(indent=2))
