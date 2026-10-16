@@ -1,0 +1,139 @@
+{
+  "id": "resp_01f638f4ce4ddcff006ad19bcfc90887d2b0efa49f8281f04e",
+  "access_programs": null,
+  "created_at": 1792121807.0,
+  "error": null,
+  "incomplete_details": null,
+  "instructions": null,
+  "metadata": {},
+  "model": "gpt-6-astra",
+  "object": "response",
+  "output": [
+    {
+      "id": "msg_01f638f4ce4ddcff006ad19bd14c0887d2845d796a6b30d7e4",
+      "content": [
+        {
+          "annotations": [],
+          "text": "Found 4 warning logs:\n\n```json\n[\n  {\n    \"ts\": 1792108866.641,\n    \"level\": \"WARN\",\n    \"event\": \"checkout_rejected\",\n    \"user_id\": 15,\n    \"product_id\": 2,\n    \"reason\": \"out_of_stock\"\n  },\n  {\n    \"ts\": 1792108866.642,\n    \"level\": \"WARN\",\n    \"event\": \"checkout_rejected\",\n    \"user_id\": 5,\n    \"product_id\": 2,\n    \"reason\": \"out_of_stock\"\n  },\n  {\n    \"ts\": 1792108866.642,\n    \"level\": \"WARN\",\n    \"event\": \"checkout_rejected\",\n    \"user_id\": 11,\n    \"product_id\": 2,\n    \"reason\": \"out_of_stock\"\n  },\n  {\n    \"ts\": 1792108866.643,\n    \"level\": \"WARN\",\n    \"event\": \"checkout_rejected\",\n    \"user_id\": 20,\n    \"product_id\": 2,\n    \"reason\": \"out_of_stock\"\n  }\n]\n```",
+          "type": "output_text",
+          "logprobs": []
+        }
+      ],
+      "role": "assistant",
+      "status": "completed",
+      "type": "message",
+      "phase": "final_answer"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "temperature": 1.0,
+  "tool_choice": "auto",
+  "tools": [
+    {
+      "name": "search_logs",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The string to check against each line in the logs"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR"
+            ],
+            "description": "The level of the log to filter for"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "The maximum number of logs to return"
+          }
+        },
+        "required": [
+          "query",
+          "level",
+          "limit"
+        ],
+        "additionalProperties": false
+      },
+      "strict": true,
+      "type": "function",
+      "allowed_callers": null,
+      "async_": null,
+      "defer_loading": null,
+      "description": "Search through the logs of the application",
+      "output_schema": null
+    }
+  ],
+  "top_p": 0.98,
+  "background": false,
+  "completed_at": 1792121812.0,
+  "conversation": null,
+  "max_output_tokens": null,
+  "max_tool_calls": null,
+  "moderation": null,
+  "previous_response_id": null,
+  "prompt": null,
+  "prompt_cache_diagnostics": null,
+  "prompt_cache_key": null,
+  "prompt_cache_options": null,
+  "prompt_cache_retention": "24h",
+  "reasoning": {
+    "context": "all_turns",
+    "effort": "medium",
+    "generate_summary": null,
+    "mode": "standard",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "status": "completed",
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "top_logprobs": 0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 325,
+    "input_tokens_details": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0
+    },
+    "output_tokens": 244,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 569
+  },
+  "user": null,
+  "billing": {
+    "payer": "developer"
+  },
+  "frequency_penalty": 0.0,
+  "presence_penalty": 0.0,
+  "store": true,
+  "tool_usage": {
+    "image_gen": {
+      "input_tokens": 0,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 0
+      },
+      "output_tokens": 0,
+      "output_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 0
+      },
+      "total_tokens": 0
+    },
+    "web_search": {
+      "num_requests": 0
+    }
+  }
+}
