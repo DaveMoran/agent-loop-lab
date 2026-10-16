@@ -24,16 +24,33 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[agent,dev]"
 cp .env.example .env    # then fill in OPENAI_API_KEY and ANTHROPIC_API_KEY
-SHOP_FAULTS=checkout_timeout python -m shop.simulate --n 200
 ```
-`.env` and `.venv/` are gitignored.
+`.env` and `.venv/` are gitignored. The scripts in `scripts/` load `.env` themselves with `python-dotenv`; the tests
+never need the keys.
 
 ## Try it
+Run everything from the repo root with the venv active.
+
+**Generate some logs.** Pick the faults you want to investigate (combine them with commas):
 ```bash
-SHOP_FAULTS=checkout_timeout python -m shop.simulate --n 200
+SHOP_FAULTS=slow_search,checkout_timeout python -m shop.simulate --n 200
 tail -5 logs/app.log
+```
+
+**Run the tests.** They are offline and free: no API calls, no keys needed.
+```bash
 python -m pytest
 ```
+The same suite runs in CI on every pull request and on pushes to `main` (`.github/workflows/tests.yml`).
+
+**Run a real round trip.** Each runner makes live API calls (it costs tokens) and overwrites its files in
+`artifacts/step2/`:
+```bash
+python scripts/openai_runner.py
+python scripts/claude_runner.py
+```
+Run them after generating logs, so the tool has WARN entries to find. The saved payloads are the evidence the
+Step 2 artifact tests check, so re-run both runners together and commit the results.
 
 ## Scenarios you will write (Step 7)
 Developer tasks pointed at this app, for example: "support says some checkouts are failing, triage it"
