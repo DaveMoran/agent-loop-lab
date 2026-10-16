@@ -19,7 +19,7 @@ SEARCH_LOGS_PARAMETERS = {
             "description": "The level of the log to filter for"
         },
         "limit": {
-            "type": "number",
+            "type": "integer",
             "description": "The maximum number of logs to return"
         }
     },
@@ -28,7 +28,7 @@ SEARCH_LOGS_PARAMETERS = {
 }
 
 
-def search_logs(query, level="ALL", limit=20):
+def search_logs(query: str | None, level: str | None = None, limit: int = 20) -> list[dict]:
     # Immediate return for 0 limit
     if limit < 1:
         return []
@@ -44,12 +44,12 @@ def search_logs(query, level="ALL", limit=20):
                 continue
 
             # If no query sent, send max results
-            if not query and level == "ALL":
+            if not query and not level:
                 final_logs.append(line_as_json)
                 continue
             else:
                 # If query AND level sent
-                if query and level != "ALL":
+                if query and level:
                     is_match = matches_query(query, line) and matches_level(level, line_as_json)
                 else:
                     # if query
@@ -57,7 +57,7 @@ def search_logs(query, level="ALL", limit=20):
                         is_match = True
 
                     # if level
-                    if level != "ALL":
+                    if level:
                         if matches_level(level, line_as_json):
                             is_match = True
                     
