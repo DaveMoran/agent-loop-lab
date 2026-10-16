@@ -1,0 +1,27 @@
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      # The suite never imports the OpenAI/Anthropic SDKs, so only the dev extra is needed.
+      - run: pip install -e ".[dev]"
+
+      # No API keys are configured on purpose: the tests must pass offline.
+      - run: python -m pytest -q
