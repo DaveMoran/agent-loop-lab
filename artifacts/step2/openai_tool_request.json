@@ -1,7 +1,7 @@
 {
-  "id": "resp_0b0cd0a32338a617006ad18683046087d2be7e6583153717ba",
+  "id": "resp_02bbb739cdd48b7c006ad19320a5fc87d29699ebcb97ec4746",
   "access_programs": null,
-  "created_at": 1792116355.0,
+  "created_at": 1792119584.0,
   "error": null,
   "incomplete_details": null,
   "instructions": null,
@@ -10,11 +10,11 @@
   "object": "response",
   "output": [
     {
-      "arguments": "{\"query\":\"\",\"level\":\"WARN\",\"limit\":10000}",
-      "call_id": "call_E9W7R8AiBhqciBm3ObcbKRxI",
+      "arguments": "{\"query\":\"\",\"level\":\"WARN\",\"limit\":2147483647}",
+      "call_id": "call_VU5KbvnsBtaZMpgO8EGcgRZ4",
       "name": "search_logs",
       "type": "function_call",
-      "id": "fc_0b0cd0a32338a617006ad186843e6087d2a81b613c6c1b52f5",
+      "id": "fc_02bbb739cdd48b7c006ad19321cb7c87d2b258e3785ea51d21",
       "async_": null,
       "caller": null,
       "namespace": null,
@@ -44,7 +44,7 @@
             "description": "The level of the log to filter for"
           },
           "limit": {
-            "type": "number",
+            "type": "integer",
             "description": "The maximum number of logs to return"
           }
         },
@@ -66,7 +66,7 @@
   ],
   "top_p": 0.98,
   "background": false,
-  "completed_at": 1792116356.0,
+  "completed_at": 1792119586.0,
   "conversation": null,
   "max_output_tokens": null,
   "max_tool_calls": null,
@@ -101,11 +101,11 @@
       "cache_write_tokens": 0,
       "cached_tokens": 0
     },
-    "output_tokens": 25,
+    "output_tokens": 27,
     "output_tokens_details": {
       "reasoning_tokens": 0
     },
-    "total_tokens": 122
+    "total_tokens": 124
   },
   "user": null,
   "billing": {
