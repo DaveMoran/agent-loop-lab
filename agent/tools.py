@@ -3,10 +3,12 @@ Individual tools that the agent will call that will allow it to go back and fort
 """
 
 import json
+import sqlite3
+from typing import Callable
 
 from shop.logs import log_path
 
-SEARCH_LOGS_PARAMETERS = {
+SEARCH_LOGS_PARAMETERS: dict = {
     "type": "object",
     "properties": {
         "query": {
@@ -27,6 +29,9 @@ SEARCH_LOGS_PARAMETERS = {
     "additionalProperties": False
 }
 
+TOOLS: dict[str, Callable]
+
+# READ_FILE_PARAMETERS, RUN_QUERY_PARAMETERS
 
 def search_logs(query: str | None, level: str | None = None, limit: int = 20) -> list[dict]:
     # Immediate return for 0 limit
@@ -72,3 +77,17 @@ def matches_query(query, line):
 
 def matches_level(level, json):
     return level.casefold() == json["level"].casefold()
+
+def read_file(path: str) -> str:
+    # If file is missing, raise FileNotFoundError
+    try:
+        with open(path, 'r') as file:
+            content = file.read()
+            return content
+    except FileNotFoundError:
+        raise FileNotFoundError("Error: The file does not exist.")
+    except OSError as e:
+        print(f"OS error occurred: {e}")
+    # Check path to ensure that file is inside shop ditrectory (PermissionError)
+    # Make sure its absolute from root
+    # Return contents of file
