@@ -3,6 +3,8 @@ Individual tools that the agent will call that will allow it to go back and fort
 """
 
 import json
+from pathlib import Path
+
 import sqlite3
 from typing import Callable
 
@@ -79,15 +81,23 @@ def matches_level(level, json):
     return level.casefold() == json["level"].casefold()
 
 def read_file(path: str) -> str:
-    # If file is missing, raise FileNotFoundError
-    try:
-        with open(path, 'r') as file:
-            content = file.read()
-            return content
-    except FileNotFoundError:
-        raise FileNotFoundError("Error: The file does not exist.")
-    except OSError as e:
-        print(f"OS error occurred: {e}")
     # Check path to ensure that file is inside shop ditrectory (PermissionError)
+    ROOT = Path(__file__).resolve().parents[1]
+    
+    try:
+        if path.startswith(str(ROOT)):
+            with open(path, 'r') as file:
+                content = file.read()
+                return content
+        if path.startswith("shop/"):
+            with open(ROOT / path, 'r') as file:
+                content = file.read()
+                return content
+        else:
+            raise PermissionError("Error: File is not in supported directory")
+    except FileNotFoundError:
+        # If file is missing, raise FileNotFoundError
+        raise FileNotFoundError("Error: The file does not exist.")
+    
     # Make sure its absolute from root
     # Return contents of file
