@@ -1,9 +1,11 @@
+from collections.abc import Callable
+
 from agent.claude_raw import extract_tool_calls, tool_result
 from agent.tools import TOOLS
 
 
 def run(
-    prompt: str, call_model, tools: dict | None = TOOLS, max_turns: int = 10
+    prompt: str, call_model: Callable, tools: dict = TOOLS, max_turns: int = 10
 ) -> dict:
     stopped = "answer"
     messages = [{"role": "user", "content": prompt}]

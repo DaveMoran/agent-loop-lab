@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 from agent.tools import SEARCH_LOGS_PARAMETERS
 
@@ -28,7 +29,7 @@ def extract_tool_calls(response: dict) -> list[dict]:
     return tool_calls
 
 
-def tool_result(call_id: str, result) -> dict:
+def tool_result(call_id: str, result: Any) -> dict:
     return {
         "type": "function_call_output",
         "call_id": call_id,

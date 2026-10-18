@@ -98,11 +98,11 @@ def search_logs(
         return final_logs[-limit:]
 
 
-def matches_query(query, line):
+def matches_query(query: str, line: str) -> bool:
     return query.casefold() in line.casefold()
 
 
-def matches_level(level, json):
+def matches_level(level: str, json: dict) -> bool:
     return level.casefold() == json["level"].casefold()
 
 
@@ -145,6 +145,7 @@ def open_readonly_db() -> sqlite3.Connection:
         return conn
     except sqlite3.OperationalError:
         print("Database file was not found!")
+        raise
 
 
 def run_query(sql: str) -> list[dict]:

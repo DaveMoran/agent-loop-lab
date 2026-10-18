@@ -1,7 +1,9 @@
 import json
 from pathlib import Path
+from typing import Any
 
 from anthropic import Anthropic
+from anthropic.types import Message
 from dotenv import load_dotenv
 
 from agent.claude_raw import tool_definitions
@@ -19,7 +21,7 @@ if __name__ == "__main__":
         "Find out why, and which orders are affected."
     )
 
-    def messages_wrapper(messages):
+    def messages_wrapper(messages: list[dict]) -> Message:
         return client.messages.create(
             model="claude-sonnet-5-5",
             max_tokens=10240,

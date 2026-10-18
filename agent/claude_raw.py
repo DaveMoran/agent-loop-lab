@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 from agent.tools import (
     READ_FILE_PARAMETERS,
@@ -7,7 +8,7 @@ from agent.tools import (
 )
 
 
-def tool_definition():
+def tool_definition() -> dict:
     return {
         "name": "search_logs",
         "description": "Search through the logs of the application",
@@ -51,7 +52,7 @@ def extract_tool_calls(response: dict) -> list[dict]:
     return tool_calls
 
 
-def tool_result(call_id: str, result) -> dict:
+def tool_result(call_id: str, result: Any) -> dict:
     return {
         "role": "user",
         "content": [
