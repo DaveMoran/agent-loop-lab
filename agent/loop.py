@@ -1,6 +1,8 @@
 from agent.claude_raw import extract_tool_calls, tool_result
 from agent.tools import TOOLS
 
+import pprint
+
 def run(
     prompt: str, call_model, tools: dict | None = TOOLS, max_turns: int = 10
 ) -> dict:
@@ -14,12 +16,13 @@ def run(
 
         tool_calls = extract_tool_calls(model_response)
         messages.append({"role": "assistant", "content": model_response["content"]})
+        temp_calls = []
         for call in tool_calls:
             try:
                 result = tool_result(
                     call["id"], tools[call["name"]](**call["arguments"])
                 )
-                messages.append(result)
+                temp_calls.append(result)
             except Exception as e:
                 # Code that runs for any other unexpected error
                 messages.append(
@@ -31,7 +34,22 @@ def run(
                     }
                 )
 
-        if model_response["stop_reason"] != "tool_use":
+        if model_response["stop_reason"] == "tool_use":
+            if len(temp_calls) > 1:
+                message = {
+                    "role": "user",
+                    "content": [],
+                }
+
+                for call in temp_calls:
+                    print(call)
+                    message["content"].append(call["content"][0])
+
+                messages.append(message)
+            elif len(temp_calls) == 1:
+                print(temp_calls)
+                messages.append(temp_calls[0])
+        else:
             messages.append({"role": "user", "content": model_response["content"][0]})
             break
 
