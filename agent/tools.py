@@ -33,7 +33,33 @@ SEARCH_LOGS_PARAMETERS: dict = {
     "additionalProperties": False
 }
 
-TOOLS: dict[str, Callable]
+READ_FILE_PARAMETERS: dict = {
+    "type": "object",
+    "properties": {
+        "path": {
+            "type": "string",
+            "description": "Path to file that will be read"
+        }
+    },
+    "required": ["path"],
+    "additionalProperties": False
+}
+
+RUN_QUERY_PARAMETERS: dict = {
+    "type": "object",
+    "properties": {
+        "sql": {
+            "type": "string",
+            "description": "SQL command to be executed against db"
+        }
+    },
+    "required": ["sql"],
+    "additionalProperties": False
+}
+
+TOOLS: dict[str, Callable] = {
+
+}
 
 # READ_FILE_PARAMETERS, RUN_QUERY_PARAMETERS
 
