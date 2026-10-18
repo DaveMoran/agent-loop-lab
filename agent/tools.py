@@ -4,11 +4,13 @@ Individual tools that the agent will call that will allow it to go back and fort
 
 import json
 from pathlib import Path
+import os
 
 import sqlite3
 from typing import Callable
 
 from shop.logs import log_path
+from shop.db import db_path
 
 SEARCH_LOGS_PARAMETERS: dict = {
     "type": "object",
@@ -98,6 +100,18 @@ def read_file(path: str) -> str:
     except FileNotFoundError:
         # If file is missing, raise FileNotFoundError
         raise FileNotFoundError("Error: The file does not exist.")
+
+def open_readonly_db() -> sqlite3.Connection:
+    # Double-check your file path actually exists
+    if not os.path.exists(db_path()):
+        raise FileNotFoundError(f"Database file not found at: {os.path.abspath(db_path())}")
     
-    # Make sure its absolute from root
-    # Return contents of file
+    # Convert file path to a URI
+    db_uri = db_path().resolve().as_uri()
+
+    try:
+        # mode=rw throws an error if the file does not exist
+        conn = sqlite3.connect(f"{db_uri}?mode=ro", uri=True)
+        return conn
+    except sqlite3.OperationalError:
+        print("Database file was not found!")
