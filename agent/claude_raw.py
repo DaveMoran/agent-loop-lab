@@ -1,14 +1,19 @@
 import json
 
-from agent.tools import SEARCH_LOGS_PARAMETERS, READ_FILE_PARAMETERS, RUN_QUERY_PARAMETERS
+from agent.tools import (
+    READ_FILE_PARAMETERS,
+    RUN_QUERY_PARAMETERS,
+    SEARCH_LOGS_PARAMETERS,
+)
 
 
 def tool_definition():
     return {
         "name": "search_logs",
         "description": "Search through the logs of the application",
-        "input_schema": SEARCH_LOGS_PARAMETERS
+        "input_schema": SEARCH_LOGS_PARAMETERS,
     }
+
 
 # Define list of tools
 def tool_definitions() -> list[dict]:
@@ -27,7 +32,7 @@ def tool_definitions() -> list[dict]:
             "name": "run_query",
             "description": "Perform a read-only SQL Query against a db",
             "input_schema": RUN_QUERY_PARAMETERS,
-        }
+        },
     ]
 
 

@@ -1,16 +1,16 @@
 """
-Individual tools that the agent will call that will allow it to go back and forth with the client while
+Individual tools that the agent will call that will allow it to go back and forth
+with the client while
 """
 
 import json
-from pathlib import Path
 import os
-
 import sqlite3
-from typing import Callable
+from collections.abc import Callable
+from pathlib import Path
 
-from shop.logs import log_path
 from shop.db import db_path
+from shop.logs import log_path
 
 SEARCH_LOGS_PARAMETERS: dict = {
     "type": "object",
@@ -62,7 +62,7 @@ def search_logs(
     if limit < 1:
         return []
 
-    with open(log_path(), "r") as file:
+    with open(log_path()) as file:
         final_logs = []
         # Step 1: Filter out all queries
         for line in file:
@@ -114,12 +114,12 @@ def read_file(path: str) -> str:
     resolved_path = Path(path).resolve()
     try:
         if path.startswith("shop/") and not path.startswith("shop/.."):
-            with open(ROOT / path, "r") as file:
+            with open(ROOT / path) as file:
                 content = file.read()
                 return content
         else:
             if resolved_path.is_relative_to(SHOP_DIR):
-                with open(path, "r") as file:
+                with open(path) as file:
                     content = file.read()
                     return content
             else:

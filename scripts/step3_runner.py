@@ -11,11 +11,13 @@ ARTIFACTS = Path(__file__).resolve().parents[1] / "artifacts" / "step3"
 RUN_FILE = ARTIFACTS / "run.json"
 
 if __name__ == "__main__":
-
     load_dotenv()
     client = Anthropic()
 
-    prompt = "Support says some checkouts are failing. Find out why, and which orders are affected."
+    prompt = (
+        "Support says some checkouts are failing. "
+        "Find out why, and which orders are affected."
+    )
 
     def messages_wrapper(messages):
         return client.messages.create(
@@ -24,7 +26,6 @@ if __name__ == "__main__":
             tools=tool_definitions(),
             messages=messages,
         )
-
 
     output = run(prompt, messages_wrapper)
 

@@ -13,7 +13,6 @@ OPENAI_SECOND = ARTIFACTS / "openai_second_request.json"
 OPENAI_FINAL = ARTIFACTS / "openai_final_response.json"
 
 if __name__ == "__main__":
-
     load_dotenv()
     client = OpenAI()
 
@@ -37,11 +36,11 @@ if __name__ == "__main__":
 
     with open(OPENAI_SECOND, "w") as f:
         clean_input = [
-            item.model_dump() if hasattr(item, 'model_dump') else item 
+            item.model_dump() if hasattr(item, "model_dump") else item
             for item in input_list
         ]
 
-        f.write(json.dumps({ "input": clean_input }))
+        f.write(json.dumps({"input": clean_input}))
 
     second_response = client.responses.create(
         model="gpt-6-astra",

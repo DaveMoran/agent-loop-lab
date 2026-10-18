@@ -1,6 +1,7 @@
 from agent.claude_raw import extract_tool_calls, tool_result
 from agent.tools import TOOLS
 
+
 def run(
     prompt: str, call_model, tools: dict | None = TOOLS, max_turns: int = 10
 ) -> dict:
@@ -12,8 +13,8 @@ def run(
         model_response = call_model(messages)
         turns += 1
         answer = ""
-    
-        if hasattr(model_response, 'model_dump'):
+
+        if hasattr(model_response, "model_dump"):
             model_response = model_response.model_dump()
 
         tool_calls = extract_tool_calls(model_response)
