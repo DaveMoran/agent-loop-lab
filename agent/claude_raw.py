@@ -3,6 +3,13 @@ import json
 from agent.tools import SEARCH_LOGS_PARAMETERS, READ_FILE_PARAMETERS, RUN_QUERY_PARAMETERS
 
 
+def tool_definition():
+    return {
+        "name": "search_logs",
+        "description": "Search through the logs of the application",
+        "input_schema": SEARCH_LOGS_PARAMETERS
+    }
+
 # Define list of tools
 def tool_definitions() -> list[dict]:
     return [
