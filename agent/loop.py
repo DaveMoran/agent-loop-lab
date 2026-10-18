@@ -12,14 +12,26 @@ def run(
 
     while turns < max_turns:
         model_response = call_model(messages)
-
         turns += 1
 
         tool_calls = extract_tool_calls(model_response)
         messages.append({"role": "assistant", "content": model_response["content"]})
         for call in tool_calls:
-            result = tool_result(call["id"], tools[call["name"]](**call["arguments"]))
-            messages.append(result)
+            try:
+                result = tool_result(
+                    call["id"], tools[call["name"]](**call["arguments"])
+                )
+                messages.append(result)
+            except Exception as e:
+                # Code that runs for any other unexpected error
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "tool_result", "is_error": True, "content": str(e)}
+                        ],
+                    }
+                )
 
         if model_response["stop_reason"] != "tool_use":
             messages.append({"role": "user", "content": model_response["content"][0]})
