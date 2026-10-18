@@ -122,7 +122,8 @@ def read_file(path: str) -> str:
                 with open(path, "r") as file:
                     content = file.read()
                     return content
-            raise PermissionError("Error: File is not in supported directory")
+            else:
+                raise PermissionError("Error: File is not in supported directory")
     except FileNotFoundError:
         # If file is missing, raise FileNotFoundError
         raise FileNotFoundError("Error: The file does not exist.")
