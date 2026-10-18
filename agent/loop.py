@@ -1,13 +1,11 @@
 from agent.claude_raw import extract_tool_calls, tool_result
-
+from agent.tools import TOOLS
 
 def run(
-    prompt: str, call_model, tools: dict | None = None, max_turns: int = 10
+    prompt: str, call_model, tools: dict | None = TOOLS, max_turns: int = 10
 ) -> dict:
     stopped = "answer"
-
     messages = [{"role": "user", "content": prompt}]
-
     turns = 0
 
     while turns < max_turns:
@@ -49,8 +47,6 @@ def run(
             }
         )
         stopped = "max_turns"
-
-    print(messages[len(messages) - 1]["content"])
 
     return {
         "answer": messages[len(messages) - 1]["content"]["text"],
