@@ -1,7 +1,6 @@
 from agent.claude_raw import extract_tool_calls, tool_result
 from agent.tools import TOOLS
 
-import pprint
 
 def run(
     prompt: str, call_model, tools: dict | None = TOOLS, max_turns: int = 10
