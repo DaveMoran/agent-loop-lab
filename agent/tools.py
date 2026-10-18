@@ -148,6 +148,9 @@ def open_readonly_db() -> sqlite3.Connection:
 
 
 def run_query(sql: str) -> list[dict]:
+    if not sql.startswith("SELECT"):
+        raise PermissionError("This tool only allows for SELECT queries")
+
     return [{"n": 1}]
 
 
