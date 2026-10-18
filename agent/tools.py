@@ -151,7 +151,20 @@ def run_query(sql: str) -> list[dict]:
     if not sql.startswith("SELECT"):
         raise PermissionError("This tool only allows for SELECT queries")
 
-    return [{"n": 1}]
+    conn = open_readonly_db()
+    conn.row_factory = sqlite3.Row  # <-- This is the key change
+    cursor = conn.cursor()
+
+    cursor.execute(sql)
+    row = cursor.fetchone()
+
+    dict_rows = []
+
+    while row is not None:
+        dict_rows.append(dict(row))
+        row = cursor.fetchone()
+
+    return dict_rows
 
 
 TOOLS: dict[str, Callable] = {
