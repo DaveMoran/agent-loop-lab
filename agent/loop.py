@@ -13,6 +13,7 @@ def run(
     while turns < max_turns:
         model_response = call_model(messages)
         turns += 1
+        answer = ""
 
         tool_calls = extract_tool_calls(model_response)
         messages.append({"role": "assistant", "content": model_response["content"]})
@@ -50,24 +51,15 @@ def run(
                 print(temp_calls)
                 messages.append(temp_calls[0])
         else:
-            messages.append({"role": "user", "content": model_response["content"][0]})
+            answer = model_response["content"][0]["text"]
             break
 
     if turns == max_turns:
-        messages.append(
-            {
-                "role": "user",
-                "content": {
-                    "type": "tool_result",
-                    "is_error": True,
-                    "text": f"Max turns reached ({max_turns})",
-                },
-            }
-        )
+        answer = "Max turns reached (" + str(max_turns) + ")"
         stopped = "max_turns"
 
     return {
-        "answer": messages[len(messages) - 1]["content"]["text"],
+        "answer": answer,
         "messages": messages,
         "turns": turns,
         "stopped": stopped,
