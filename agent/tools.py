@@ -1,5 +1,5 @@
 """
-Individual tools that the agent will call that will allow it to go back and forth with the client while 
+Individual tools that the agent will call that will allow it to go back and forth with the client while
 """
 
 import json
@@ -17,32 +17,29 @@ SEARCH_LOGS_PARAMETERS: dict = {
     "properties": {
         "query": {
             "type": "string",
-            "description": "The string to check against each line in the logs"
+            "description": "The string to check against each line in the logs",
         },
         "level": {
             "type": "string",
             "enum": ["INFO", "WARN", "ERROR"],
-            "description": "The level of the log to filter for"
+            "description": "The level of the log to filter for",
         },
         "limit": {
             "type": "integer",
-            "description": "The maximum number of logs to return"
-        }
+            "description": "The maximum number of logs to return",
+        },
     },
     "required": ["query"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 READ_FILE_PARAMETERS: dict = {
     "type": "object",
     "properties": {
-        "path": {
-            "type": "string",
-            "description": "Path to file that will be read"
-        }
+        "path": {"type": "string", "description": "Path to file that will be read"}
     },
     "required": ["path"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 RUN_QUERY_PARAMETERS: dict = {
@@ -50,19 +47,21 @@ RUN_QUERY_PARAMETERS: dict = {
     "properties": {
         "sql": {
             "type": "string",
-            "description": "SQL command to be executed against db"
+            "description": "SQL command to be executed against db",
         }
     },
     "required": ["sql"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 
-def search_logs(query: str | None, level: str | None = None, limit: int = 20) -> list[dict]:
+def search_logs(
+    query: str | None, level: str | None = None, limit: int = 20
+) -> list[dict]:
     # Immediate return for 0 limit
     if limit < 1:
         return []
-    
+
     with open(log_path(), "r") as file:
         final_logs = []
         # Step 1: Filter out all queries
@@ -80,7 +79,9 @@ def search_logs(query: str | None, level: str | None = None, limit: int = 20) ->
             else:
                 # If query AND level sent
                 if query and level:
-                    is_match = matches_query(query, line) and matches_level(level, line_as_json)
+                    is_match = matches_query(query, line) and matches_level(
+                        level, line_as_json
+                    )
                 else:
                     # if query
                     if query and matches_query(query, line):
@@ -90,43 +91,50 @@ def search_logs(query: str | None, level: str | None = None, limit: int = 20) ->
                     if level:
                         if matches_level(level, line_as_json):
                             is_match = True
-                    
 
             if is_match:
                 final_logs.append(line_as_json)
 
         return final_logs[-limit:]
 
+
 def matches_query(query, line):
     return query.casefold() in line.casefold()
+
 
 def matches_level(level, json):
     return level.casefold() == json["level"].casefold()
 
+
 def read_file(path: str) -> str:
-    # Check path to ensure that file is inside shop ditrectory (PermissionError)
+    # Check path to ensure that file is inside shop directory (PermissionError)
     ROOT = Path(__file__).resolve().parents[1]
-    
+    SHOP_DIR = ROOT / "shop"
+
+    resolved_path = Path(path).resolve()
     try:
-        if path.startswith(str(ROOT)):
-            with open(path, 'r') as file:
-                content = file.read()
-                return content
-        if path.startswith("shop/"):
-            with open(ROOT / path, 'r') as file:
+        if path.startswith("shop/") and not path.startswith("shop/.."):
+            with open(ROOT / path, "r") as file:
                 content = file.read()
                 return content
         else:
+            if resolved_path.is_relative_to(SHOP_DIR):
+                with open(path, "r") as file:
+                    content = file.read()
+                    return content
             raise PermissionError("Error: File is not in supported directory")
     except FileNotFoundError:
         # If file is missing, raise FileNotFoundError
         raise FileNotFoundError("Error: The file does not exist.")
 
+
 def open_readonly_db() -> sqlite3.Connection:
     # Double-check your file path actually exists
     if not os.path.exists(db_path()):
-        raise FileNotFoundError(f"Database file not found at: {os.path.abspath(db_path())}")
-    
+        raise FileNotFoundError(
+            f"Database file not found at: {os.path.abspath(db_path())}"
+        )
+
     # Convert file path to a URI
     db_uri = db_path().resolve().as_uri()
 
@@ -145,5 +153,5 @@ def run_query(sql: str) -> list[dict]:
 TOOLS: dict[str, Callable] = {
     "search_logs": search_logs,
     "read_file": read_file,
-    "run_query": run_query
+    "run_query": run_query,
 }
