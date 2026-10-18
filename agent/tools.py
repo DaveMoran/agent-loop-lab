@@ -57,17 +57,6 @@ RUN_QUERY_PARAMETERS: dict = {
     "additionalProperties": False
 }
 
-TOOLS: dict[str, Callable] = {
-    "search_logs": {
-        "input_schema": SEARCH_LOGS_PARAMETERS
-    },
-    "read_file": {
-            "input_schema": READ_FILE_PARAMETERS
-    },
-    "run_query": {
-            "input_schema": RUN_QUERY_PARAMETERS
-    },
-}
 
 def search_logs(query: str | None, level: str | None = None, limit: int = 20) -> list[dict]:
     # Immediate return for 0 limit
@@ -147,3 +136,14 @@ def open_readonly_db() -> sqlite3.Connection:
         return conn
     except sqlite3.OperationalError:
         print("Database file was not found!")
+
+
+def run_query(sql: str) -> list[dict]:
+    return [{"n": 1}]
+
+
+TOOLS: dict[str, Callable] = {
+    "search_logs": search_logs,
+    "read_file": read_file,
+    "run_query": run_query
+}
