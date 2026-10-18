@@ -58,10 +58,16 @@ RUN_QUERY_PARAMETERS: dict = {
 }
 
 TOOLS: dict[str, Callable] = {
-
+    "search_logs": {
+        "input_schema": SEARCH_LOGS_PARAMETERS
+    },
+    "read_file": {
+            "input_schema": READ_FILE_PARAMETERS
+    },
+    "run_query": {
+            "input_schema": RUN_QUERY_PARAMETERS
+    },
 }
-
-# READ_FILE_PARAMETERS, RUN_QUERY_PARAMETERS
 
 def search_logs(query: str | None, level: str | None = None, limit: int = 20) -> list[dict]:
     # Immediate return for 0 limit
