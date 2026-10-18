@@ -37,6 +37,21 @@ def run(
             messages.append({"role": "user", "content": model_response["content"][0]})
             break
 
+    if turns == max_turns:
+        messages.append(
+            {
+                "role": "user",
+                "content": {
+                    "type": "tool_result",
+                    "is_error": True,
+                    "text": f"Max turns reached ({max_turns})",
+                },
+            }
+        )
+        stopped = "max_turns"
+
+    print(messages[len(messages) - 1]["content"])
+
     return {
         "answer": messages[len(messages) - 1]["content"]["text"],
         "messages": messages,
