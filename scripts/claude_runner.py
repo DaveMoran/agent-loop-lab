@@ -13,7 +13,6 @@ ANTHROPIC_SECOND = ARTIFACTS / "anthropic_second_request.json"
 ANTHROPIC_FINAL = ARTIFACTS / "anthropic_final_response.json"
 
 if __name__ == "__main__":
-
     load_dotenv()
     client = Anthropic()
 
@@ -29,7 +28,7 @@ if __name__ == "__main__":
     with open(ANTHROPIC_FILE, "w") as f:
         f.write(response.model_dump_json(indent=2))
 
-    messages += {"role": "assistant", "content": response.model_dump()["content"]},
+    messages += ({"role": "assistant", "content": response.model_dump()["content"]},)
     tool_calls = extract_tool_calls(response.model_dump())
 
     for call in tool_calls:
@@ -38,11 +37,11 @@ if __name__ == "__main__":
 
     with open(ANTHROPIC_SECOND, "w") as f:
         clean_input = [
-            item.model_dump() if hasattr(item, 'model_dump') else item 
+            item.model_dump() if hasattr(item, "model_dump") else item
             for item in messages
         ]
 
-        f.write(json.dumps({ "messages": clean_input }))
+        f.write(json.dumps({"messages": clean_input}))
 
     second_response = client.messages.create(
         model="claude-opus-5-5",
