@@ -148,14 +148,15 @@ def open_readonly_db() -> sqlite3.Connection:
 
 
 def run_query(sql: str) -> list[dict]:
-    if not sql.startswith("SELECT"):
+    formatted_sql = sql.strip().casefold()
+    if not formatted_sql.startswith("select"):
         raise PermissionError("This tool only allows for SELECT queries")
 
     conn = open_readonly_db()
     conn.row_factory = sqlite3.Row  # <-- This is the key change
     cursor = conn.cursor()
 
-    cursor.execute(sql)
+    cursor.execute(formatted_sql)
     row = cursor.fetchone()
 
     dict_rows = []
