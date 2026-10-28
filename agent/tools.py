@@ -243,7 +243,8 @@ def create_handoff(summary: str, evidence: list[str], requested_action: str) -> 
         "status": "open",
     }
 
-    write_file(AGENT_LOG, entry)
+    with open(os.getenv("AGENT_LOG", "logs/agent.log"), "a") as file:
+        file.write(json.dumps(entry) + "\n")
 
     return entry
 
