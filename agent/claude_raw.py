@@ -5,6 +5,8 @@ from agent.tools import (
     READ_FILE_PARAMETERS,
     RUN_QUERY_PARAMETERS,
     SEARCH_LOGS_PARAMETERS,
+    WRITE_FILE_PARAMETERS,
+    HANDOFF_PARAMETERS
 )
 
 
@@ -33,6 +35,16 @@ def tool_definitions() -> list[dict]:
             "name": "run_query",
             "description": "Perform a read-only SQL Query against a db",
             "input_schema": RUN_QUERY_PARAMETERS,
+        },
+        {
+            "name": "write_file",
+            "description": "Write content to a file",
+            "input_schema": WRITE_FILE_PARAMETERS,
+        },
+        {
+            "name": "create_handoff",
+            "description": "Creates a structued JSON object to be handed off to the Agent with context needed to perform an action",
+            "input_schema": HANDOFF_PARAMETERS,
         },
     ]
 
