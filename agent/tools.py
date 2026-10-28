@@ -6,6 +6,7 @@ with the client while
 import json
 import os
 import sqlite3
+import uuid
 from collections.abc import Callable
 from pathlib import Path
 
@@ -53,8 +54,39 @@ RUN_QUERY_PARAMETERS: dict = {
     "required": ["sql"],
     "additionalProperties": False,
 }
-WRITE_FILE_PARAMETERS: dict = {}
-HANDOFF_PARAMETERS: dict = {}
+
+WRITE_FILE_PARAMETERS: dict = {
+    "type": "object",
+    "properties": {
+        "summary": {"type": "string", "description": "Path to file that will be read"},
+        "content": {
+            "type": "string",
+            "description": "Content that will be written to the file",
+        },
+    },
+    "required": ["path", "content"],
+    "additionalProperties": False,
+}
+
+HANDOFF_PARAMETERS: dict = {
+    "type": "object",
+    "properties": {
+        "summary": {
+            "type": "string",
+            "description": "instructions needed for the handoff to be performed successfully",
+        },
+        "evidence": {
+            "type": "list",
+            "description": "A list of strings that will be used to providde additional context for the Agent",
+        },
+        "requested_action": {
+            "type": "string",
+            "description": "Action/Tool requested by the original role",
+        },
+    },
+    "required": ["summary", "evidence", "requested_action"],
+    "additionalProperties": False,
+}
 
 
 def search_logs(
@@ -170,6 +202,7 @@ def run_query(sql: str) -> list[dict]:
 
     return dict_rows
 
+
 def write_file(path: str, content: str) -> dict:
     # Check path to ensure that file is inside shop directory (PermissionError)
     ROOT = Path(__file__).resolve().parents[1]
@@ -192,12 +225,33 @@ def write_file(path: str, content: str) -> dict:
         # If file is missing, raise FileNotFoundError
         raise FileNotFoundError("Error: The file does not exist.")
 
+
 def create_handoff(summary: str, evidence: list[str], requested_action: str) -> dict:
-    return {}
+    if not summary.strip():
+        raise ValueError("Summary can not be empty")
+    if not requested_action.strip():
+        raise ValueError("Requested Action can not be empty")
+    if len(evidence) < 1 or not isinstance(evidence, list):
+        raise ValueError("Evidence can not be empty")
+
+    entry = {
+        "id": str(uuid.uuid4()),
+        "summary": summary,
+        "evidence": evidence,
+        "requested_action": requested_action,
+        "event": "handoff",
+        "status": "open",
+    }
+
+    write_file(AGENT_LOG, entry)
+
+    return entry
 
 
 TOOLS: dict[str, Callable] = {
     "search_logs": search_logs,
     "read_file": read_file,
     "run_query": run_query,
+    "write_file": write_file,
+    "create_handoff": create_handoff,
 }
