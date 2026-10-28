@@ -1,11 +1,18 @@
+import json
+
 from collections.abc import Callable
 
 from agent.claude_raw import extract_tool_calls, tool_result
 from agent.tools import TOOLS
+from agent.permissions import check
 
 
 def run(
-    prompt: str, call_model: Callable, tools: dict = TOOLS, max_turns: int = 10
+    prompt: str,
+    call_model: Callable,
+    tools: dict = TOOLS,
+    max_turns: int = 10,
+    ctx=None,
 ) -> dict:
     stopped = "answer"
     messages = [{"role": "user", "content": prompt}]
@@ -23,21 +30,41 @@ def run(
         messages.append({"role": "assistant", "content": model_response["content"]})
         temp_calls = []
         for call in tool_calls:
-            try:
-                result = tool_result(
-                    call["id"], tools[call["name"]](**call["arguments"])
-                )
-                temp_calls.append(result)
-            except Exception as e:
-                # Code that runs for any other unexpected error
+            denial = check(ctx, call["name"], call["arguments"])
+            if denial:
                 messages.append(
                     {
                         "role": "user",
                         "content": [
-                            {"type": "tool_result", "is_error": True, "content": str(e)}
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": call["id"],
+                                "is_error": True,
+                                "content": json.dumps(denial),
+                            }
                         ],
                     }
                 )
+            else:
+                try:
+                    result = tool_result(
+                        call["id"], tools[call["name"]](**call["arguments"])
+                    )
+                    temp_calls.append(result)
+                except Exception as e:
+                    # Code that runs for any other unexpected error
+                    messages.append(
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "tool_result",
+                                    "is_error": True,
+                                    "content": str(e),
+                                }
+                            ],
+                        }
+                    )
 
         if model_response["stop_reason"] == "tool_use":
             if len(temp_calls) > 1:

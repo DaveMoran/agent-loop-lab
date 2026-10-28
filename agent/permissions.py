@@ -14,13 +14,19 @@ class Context:
             )
 
 def check(ctx: Context, name: str, arguments: dict) -> dict | None:
+    is_read_only = True
+    if hasattr(ctx, 'level') and ctx.level == 'operator':
+        is_read_only = False
+
+    user_level = ctx.level if hasattr(ctx, 'level') else 'None'
+
     if name == 'write_file':
-        if ctx.level == 'investigator':
+        if is_read_only:
             return {
                 "error": "permission_denied", 
                 "tool": name, 
-                "level": ctx.level,
-                "reason": f"{ctx.level} does not have permission to run tool f{name}", 
+                "level": user_level,
+                "reason": f"{user_level} does not have permission to run tool f{name}", 
                 "suggestion": "Use tool create_handoff"
             }
 
@@ -31,7 +37,7 @@ def check(ctx: Context, name: str, arguments: dict) -> dict | None:
             return {
                 "error": "permission_denied", 
                 "tool": name, 
-                "level": ctx.level,
+                "level": user_level,
                 "reason": f"Access to file {arguments["path"]} not allowed.", 
                 "suggestion": "Use tool create_handoff"
             }
