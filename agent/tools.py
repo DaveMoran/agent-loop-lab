@@ -2,16 +2,19 @@
 Individual tools that the agent will call that will allow it to go back and forth
 with the client while
 """
-
 import json
 import os
 import sqlite3
 import uuid
 from collections.abc import Callable
+from datetime import datetime, timezone
 from pathlib import Path
 
 from shop.db import db_path
 from shop.logs import log_path
+
+LOGS = Path(__file__).resolve().parents[1] / "logs"
+LOG_FILE = LOGS / "agent.json"
 
 SEARCH_LOGS_PARAMETERS: dict = {
     "type": "object",
@@ -58,13 +61,13 @@ RUN_QUERY_PARAMETERS: dict = {
 WRITE_FILE_PARAMETERS: dict = {
     "type": "object",
     "properties": {
-        "summary": {"type": "string", "description": "Path to file that will be read"},
+        "path": {"type": "string", "description": "Path to file that will be read"},
         "content": {
             "type": "string",
             "description": "Content that will be written to the file",
         },
     },
-    "required": ["summary", "content"],
+    "required": ["path", "content"],
     "additionalProperties": False,
 }
 
@@ -78,6 +81,9 @@ HANDOFF_PARAMETERS: dict = {
         "evidence": {
             "type": "array",
             "description": "A list of strings that will be used to providde additional context for the Agent",
+            "items": {
+                "type": "string",
+            }
         },
         "requested_action": {
             "type": "string",
@@ -235,6 +241,7 @@ def create_handoff(summary: str, evidence: list[str], requested_action: str) -> 
         raise ValueError("Evidence can not be empty")
 
     entry = {
+        "ts": datetime.now(timezone.utc).isoformat(timespec='milliseconds'),
         "id": str(uuid.uuid4()),
         "summary": summary,
         "evidence": evidence,
@@ -243,7 +250,10 @@ def create_handoff(summary: str, evidence: list[str], requested_action: str) -> 
         "status": "open",
     }
 
-    with open(os.getenv("AGENT_LOG", "logs/agent.log"), "a") as file:
+    audit_log_path = Path(os.getenv("AGENT_LOG", "logs/agent.log"))
+    audit_log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(audit_log_path, "a") as file:
         file.write(json.dumps(entry) + "\n")
 
     return entry
