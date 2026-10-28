@@ -64,7 +64,7 @@ WRITE_FILE_PARAMETERS: dict = {
             "description": "Content that will be written to the file",
         },
     },
-    "required": ["path", "content"],
+    "required": ["summary", "content"],
     "additionalProperties": False,
 }
 
@@ -76,7 +76,7 @@ HANDOFF_PARAMETERS: dict = {
             "description": "instructions needed for the handoff to be performed successfully",
         },
         "evidence": {
-            "type": "list",
+            "type": "array",
             "description": "A list of strings that will be used to providde additional context for the Agent",
         },
         "requested_action": {
