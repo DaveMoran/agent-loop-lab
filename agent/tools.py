@@ -53,6 +53,8 @@ RUN_QUERY_PARAMETERS: dict = {
     "required": ["sql"],
     "additionalProperties": False,
 }
+WRITE_FILE_PARAMETERS: dict = {}
+HANDOFF_PARAMETERS: dict = {}
 
 
 def search_logs(
@@ -167,6 +169,31 @@ def run_query(sql: str) -> list[dict]:
         row = cursor.fetchone()
 
     return dict_rows
+
+def write_file(path: str, content: str) -> dict:
+    # Check path to ensure that file is inside shop directory (PermissionError)
+    ROOT = Path(__file__).resolve().parents[1]
+    SHOP_DIR = ROOT / "shop"
+
+    resolved_path = Path(path).resolve()
+    try:
+        if path.startswith("shop/") and not path.startswith("shop/.."):
+            with open(ROOT / path, "w") as file:
+                file.write(content)
+                return {}
+        else:
+            if resolved_path.is_relative_to(SHOP_DIR):
+                with open(path, "w") as file:
+                    file.write(content)
+                    return {}
+            else:
+                raise PermissionError("Error: File is not in supported directory")
+    except FileNotFoundError:
+        # If file is missing, raise FileNotFoundError
+        raise FileNotFoundError("Error: The file does not exist.")
+
+def create_handoff(summary: str, evidence: list[str], requested_action: str) -> dict:
+    return {}
 
 
 TOOLS: dict[str, Callable] = {
