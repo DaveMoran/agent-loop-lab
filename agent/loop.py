@@ -1,4 +1,6 @@
 import json
+import os
+from pathlib import Path
 
 from collections.abc import Callable
 
@@ -32,6 +34,11 @@ def run(
         for call in tool_calls:
             denial = check(ctx, call["name"], call["arguments"])
             if denial:
+                audit_log_file = Path(os.getenv("AGENT_LOG", "logs/agent.log"))
+                audit_log_dir = audit_log_file.parent
+
+                audit_log_dir.mkdir(parents=True, exist_ok=True)
+                audit_log_file.write_text(json.dumps(denial), newline="\n")
                 messages.append(
                     {
                         "role": "user",

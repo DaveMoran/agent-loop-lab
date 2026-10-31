@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from datetime import datetime, timezone
 
 from agent.tools import read_file
 
@@ -25,11 +26,14 @@ def check(ctx: Context, name: str, arguments: dict) -> dict | None:
     if name == "write_file":
         if is_read_only:
             return {
+                "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
                 "error": "permission_denied",
+                "event": "permission_denied",
                 "tool": name,
                 "level": user_level,
                 "reason": f"{user_level} does not have permission to run tool f{name}",
                 "suggestion": "Use tool create_handoff",
+                "arguments": arguments,
             }
     if "path" in arguments:
         try:
@@ -37,13 +41,27 @@ def check(ctx: Context, name: str, arguments: dict) -> dict | None:
         except FileNotFoundError as e:
             if is_read_only is False:
                 return None
+            else:
+                return {
+                    "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+                    "error": "permission_denied",
+                    "event": "permission_denied",
+                    "tool": name,
+                    "level": user_level,
+                    "reason": f"Access to file {arguments["path"]} not allowed.",
+                    "suggestion": "Use tool create_handoff",
+                    "arguments": arguments,
+                }
         except PermissionError as e:
             return {
+                "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
                 "error": "permission_denied",
+                "event": "permission_denied",
                 "tool": name,
                 "level": user_level,
                 "reason": f"Access to file {arguments["path"]} not allowed.",
                 "suggestion": "Use tool create_handoff",
+                "arguments": arguments,
             }
 
     return None
