@@ -3,45 +3,47 @@ from enum import Enum
 
 from agent.tools import read_file
 
+
 @dataclass(frozen=True)
 class Context:
     level: str = "investigator"
 
     def __post_init__(self):
-        if self.level.lower() not in ['investigator', 'operator']:
+        if self.level.lower() not in ["investigator", "operator"]:
             raise ValueError(
                 f"Invalid level. Expected valid string value, got {type(self.level)}"
             )
 
+
 def check(ctx: Context, name: str, arguments: dict) -> dict | None:
     is_read_only = True
-    if hasattr(ctx, 'level') and ctx.level == 'operator':
+    if hasattr(ctx, "level") and ctx.level == "operator":
         is_read_only = False
 
-    user_level = ctx.level if hasattr(ctx, 'level') else 'None'
+    user_level = ctx.level if hasattr(ctx, "level") else "None"
 
-    if name == 'write_file':
+    if name == "write_file":
         if is_read_only:
             return {
-                "error": "permission_denied", 
-                "tool": name, 
+                "error": "permission_denied",
+                "tool": name,
                 "level": user_level,
-                "reason": f"{user_level} does not have permission to run tool f{name}", 
-                "suggestion": "Use tool create_handoff"
+                "reason": f"{user_level} does not have permission to run tool f{name}",
+                "suggestion": "Use tool create_handoff",
             }
-
     if "path" in arguments:
         try:
             file = read_file(arguments["path"])
+        except FileNotFoundError as e:
+            if is_read_only is False:
+                return None
         except PermissionError as e:
             return {
-                "error": "permission_denied", 
-                "tool": name, 
+                "error": "permission_denied",
+                "tool": name,
                 "level": user_level,
-                "reason": f"Access to file {arguments["path"]} not allowed.", 
-                "suggestion": "Use tool create_handoff"
+                "reason": f"Access to file {arguments["path"]} not allowed.",
+                "suggestion": "Use tool create_handoff",
             }
 
-
-    
     return None

@@ -2,6 +2,7 @@
 Individual tools that the agent will call that will allow it to go back and forth
 with the client while
 """
+
 import json
 import os
 import sqlite3
@@ -83,7 +84,7 @@ HANDOFF_PARAMETERS: dict = {
             "description": "A list of strings that will be used to providde additional context for the Agent",
             "items": {
                 "type": "string",
-            }
+            },
         },
         "requested_action": {
             "type": "string",
@@ -241,7 +242,7 @@ def create_handoff(summary: str, evidence: list[str], requested_action: str) -> 
         raise ValueError("Evidence can not be empty")
 
     entry = {
-        "ts": datetime.now(timezone.utc).isoformat(timespec='milliseconds'),
+        "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
         "id": str(uuid.uuid4()),
         "summary": summary,
         "evidence": evidence,
@@ -250,11 +251,11 @@ def create_handoff(summary: str, evidence: list[str], requested_action: str) -> 
         "status": "open",
     }
 
-    audit_log_path = Path(os.getenv("AGENT_LOG", "logs/agent.log"))
-    audit_log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(audit_log_path, "a") as file:
-        file.write(json.dumps(entry) + "\n")
+    audit_log_file = Path(os.getenv("AGENT_LOG", "logs/agent.log"))
+    audit_log_dir = audit_log_file.parent
+
+    audit_log_dir.mkdir(parents=True, exist_ok=True)
+    audit_log_file.write_text(json.dumps(entry) + "\n")
 
     return entry
 

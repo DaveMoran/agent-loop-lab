@@ -38,7 +38,7 @@ def tool_definitions() -> list[dict]:
         },
         {
             "name": "write_file",
-            "description": "Write content to a file",
+            "description": "Write content to a file at the path provided",
             "input_schema": WRITE_FILE_PARAMETERS,
         },
         {
