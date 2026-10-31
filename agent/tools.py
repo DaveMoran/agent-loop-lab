@@ -255,7 +255,8 @@ def create_handoff(summary: str, evidence: list[str], requested_action: str) -> 
     audit_log_dir = audit_log_file.parent
 
     audit_log_dir.mkdir(parents=True, exist_ok=True)
-    audit_log_file.write_text(json.dumps(entry) + "\n")
+    with open(audit_log_file, "a", encoding="utf-8") as file:
+        file.write(json.dumps(entry) + "\n")
 
     return entry
 
