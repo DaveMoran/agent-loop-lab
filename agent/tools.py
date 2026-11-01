@@ -6,11 +6,23 @@ with the client while
 import json
 import os
 import sqlite3
+import uuid
 from collections.abc import Callable
 from pathlib import Path
 
 from shop.db import db_path
 from shop.logs import log_path
+
+from agent.audit import write_to_audit_log
+
+ROOT = Path(__file__).resolve().parents[1]
+SHOP_DIR = ROOT / "shop"
+
+
+def is_inside_shop(path: str) -> bool:
+    resolved = (ROOT / path).resolve()
+    return resolved.is_relative_to(SHOP_DIR)
+
 
 SEARCH_LOGS_PARAMETERS: dict = {
     "type": "object",
@@ -51,6 +63,45 @@ RUN_QUERY_PARAMETERS: dict = {
         }
     },
     "required": ["sql"],
+    "additionalProperties": False,
+}
+
+WRITE_FILE_PARAMETERS: dict = {
+    "type": "object",
+    "properties": {
+        "path": {
+            "type": "string",
+            "description": "Path of the file to write, relative to the repo root and inside shop/",
+        },
+        "content": {
+            "type": "string",
+            "description": "Content that will be written to the file",
+        },
+    },
+    "required": ["path", "content"],
+    "additionalProperties": False,
+}
+
+HANDOFF_PARAMETERS: dict = {
+    "type": "object",
+    "properties": {
+        "summary": {
+            "type": "string",
+            "description": "instructions needed for the handoff to be performed successfully",
+        },
+        "evidence": {
+            "type": "array",
+            "description": "A list of strings that will be used to provide additional context for the human reviewing the handoff",
+            "items": {
+                "type": "string",
+            },
+        },
+        "requested_action": {
+            "type": "string",
+            "description": "Action/Tool requested by the original role",
+        },
+    },
+    "required": ["summary", "evidence", "requested_action"],
     "additionalProperties": False,
 }
 
@@ -107,23 +158,13 @@ def matches_level(level: str, json: dict) -> bool:
 
 
 def read_file(path: str) -> str:
-    # Check path to ensure that file is inside shop directory (PermissionError)
-    ROOT = Path(__file__).resolve().parents[1]
-    SHOP_DIR = ROOT / "shop"
-
-    resolved_path = Path(path).resolve()
     try:
-        if path.startswith("shop/") and not path.startswith("shop/.."):
+        if is_inside_shop(path):
             with open(ROOT / path) as file:
                 content = file.read()
                 return content
         else:
-            if resolved_path.is_relative_to(SHOP_DIR):
-                with open(path) as file:
-                    content = file.read()
-                    return content
-            else:
-                raise PermissionError("Error: File is not in supported directory")
+            raise PermissionError("Error: File is not in supported directory")
     except FileNotFoundError:
         # If file is missing, raise FileNotFoundError
         raise FileNotFoundError("Error: The file does not exist.")
@@ -169,8 +210,46 @@ def run_query(sql: str) -> list[dict]:
     return dict_rows
 
 
+def write_file(path: str, content: str) -> dict:
+    try:
+        if is_inside_shop(path):
+            with open(ROOT / path, "w") as file:
+                file.write(content)
+                return {}
+        else:
+            raise PermissionError("Error: File is not in supported directory")
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"Error: The directory for {path} does not exist. write_file creates files, not directories."
+        )
+
+
+def create_handoff(summary: str, evidence: list[str], requested_action: str) -> dict:
+    if not summary.strip():
+        raise ValueError("Summary can not be empty")
+    if not requested_action.strip():
+        raise ValueError("Requested Action can not be empty")
+    if len(evidence) < 1 or not isinstance(evidence, list):
+        raise ValueError("Evidence can not be empty")
+
+    entry = {
+        "id": str(uuid.uuid4()),
+        "summary": summary,
+        "evidence": evidence,
+        "requested_action": requested_action,
+        "event": "handoff",
+        "status": "open",
+    }
+
+    write_to_audit_log(entry)
+
+    return entry
+
+
 TOOLS: dict[str, Callable] = {
     "search_logs": search_logs,
     "read_file": read_file,
     "run_query": run_query,
+    "write_file": write_file,
+    "create_handoff": create_handoff,
 }

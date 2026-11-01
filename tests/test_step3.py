@@ -237,7 +237,8 @@ def test_new_schemas_describe_their_arguments(tools, name, required):
 
 
 def test_registry_holds_the_three_tools(tools):
-    assert set(tools.TOOLS) == {"search_logs", "read_file", "run_query"}
+    # ">=" since Step 4, which adds write_file and create_handoff to the registry.
+    assert set(tools.TOOLS) >= {"search_logs", "read_file", "run_query"}
     assert tools.TOOLS["read_file"] is tools.read_file
     assert tools.TOOLS["run_query"] is tools.run_query
     assert tools.TOOLS["search_logs"] is tools.search_logs
