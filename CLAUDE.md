@@ -18,3 +18,4 @@ This repo is how the owner is learning to build agents manually, against the raw
 - **Do not give code.** No snippets, no complete or partial implementations, no pseudo-code that amounts to the answer.
 - **Give pointers instead.** Point to the relevant docs, concepts, or the next question to ask. Explain why something behaves as it does and say which direction to look. Let the owner write the code and discover the answer.
 - If the owner asks for code directly, remind them of this rule rather than giving it. They can lift it explicitly for a specific task.
+- **Three-hint fallback.** If the owner is still stuck on the same question after three hints, you may give one small piece of code to start from: the first part only, shown in chat (not written into their files), with a walkthrough of what each line does. Leave the rest for them to finish. This applies per question; the hint count resets for the next one.

@@ -17,6 +17,13 @@ from shop.logs import log_path
 LOGS = Path(__file__).resolve().parents[1] / "logs"
 LOG_FILE = LOGS / "agent.json"
 
+ROOT = Path(__file__).resolve().parents[1]
+SHOP_DIR = ROOT / "shop"
+
+def is_inside_shop(path: str) -> bool:
+    resolved = (ROOT / path).resolve()
+    return resolved.is_relative_to(SHOP_DIR)
+
 SEARCH_LOGS_PARAMETERS: dict = {
     "type": "object",
     "properties": {
@@ -148,23 +155,13 @@ def matches_level(level: str, json: dict) -> bool:
 
 
 def read_file(path: str) -> str:
-    # Check path to ensure that file is inside shop directory (PermissionError)
-    ROOT = Path(__file__).resolve().parents[1]
-    SHOP_DIR = ROOT / "shop"
-
-    resolved_path = Path(path).resolve()
     try:
-        if path.startswith("shop/") and not path.startswith("shop/.."):
-            with open(ROOT / path) as file:
+        if is_inside_shop(path):
+            with open(path) as file:
                 content = file.read()
                 return content
         else:
-            if resolved_path.is_relative_to(SHOP_DIR):
-                with open(path) as file:
-                    content = file.read()
-                    return content
-            else:
-                raise PermissionError("Error: File is not in supported directory")
+            raise PermissionError("Error: File is not in supported directory")
     except FileNotFoundError:
         # If file is missing, raise FileNotFoundError
         raise FileNotFoundError("Error: The file does not exist.")
@@ -211,25 +208,15 @@ def run_query(sql: str) -> list[dict]:
 
 
 def write_file(path: str, content: str) -> dict:
-    # Check path to ensure that file is inside shop directory (PermissionError)
-    ROOT = Path(__file__).resolve().parents[1]
-    SHOP_DIR = ROOT / "shop"
-
-    resolved_path = Path(path).resolve()
     try:
-        if path.startswith("shop/") and not path.startswith("shop/.."):
+        if is_inside_shop(path):
             with open(ROOT / path, "w") as file:
                 file.write(content)
                 return {}
         else:
-            if resolved_path.is_relative_to(SHOP_DIR):
-                with open(path, "w") as file:
-                    file.write(content)
-                    return {}
-            else:
-                raise PermissionError("Error: File is not in supported directory")
+            raise PermissionError("Error: File is not in supported directory")
     except FileNotFoundError:
-        # If file is missing, raise FileNotFoundError
+        print(path)
         raise FileNotFoundError("Error: The file does not exist.")
 
 
