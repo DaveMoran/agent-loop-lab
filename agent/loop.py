@@ -76,12 +76,6 @@ def run(
 
             messages.append(message)
         else:
-            messages.append(
-                {
-                    "role": "user",
-                    "content": temp_calls,
-                }
-            )
             answer = model_response["content"][-1]["text"]
             break
 
