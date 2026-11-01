@@ -6,7 +6,7 @@ from agent.tools import (
     RUN_QUERY_PARAMETERS,
     SEARCH_LOGS_PARAMETERS,
     WRITE_FILE_PARAMETERS,
-    HANDOFF_PARAMETERS,
+    HANDOFF_PARAMETERS
 )
 
 
@@ -66,7 +66,12 @@ def extract_tool_calls(response: dict) -> list[dict]:
 
 def tool_result(call_id: str, result: Any) -> dict:
     return {
-        "type": "tool_result",
-        "tool_use_id": call_id,
-        "content": json.dumps(result),
+        "role": "user",
+        "content": [
+            {
+                "type": "tool_result",
+                "tool_use_id": call_id,
+                "content": json.dumps(result),
+            }
+        ],
     }
