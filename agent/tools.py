@@ -14,15 +14,16 @@ from pathlib import Path
 from shop.db import db_path
 from shop.logs import log_path
 
-LOGS = Path(__file__).resolve().parents[1] / "logs"
-LOG_FILE = LOGS / "agent.json"
+from agent.audit import write_to_audit_log
 
 ROOT = Path(__file__).resolve().parents[1]
 SHOP_DIR = ROOT / "shop"
 
+
 def is_inside_shop(path: str) -> bool:
     resolved = (ROOT / path).resolve()
     return resolved.is_relative_to(SHOP_DIR)
+
 
 SEARCH_LOGS_PARAMETERS: dict = {
     "type": "object",
@@ -229,7 +230,6 @@ def create_handoff(summary: str, evidence: list[str], requested_action: str) -> 
         raise ValueError("Evidence can not be empty")
 
     entry = {
-        "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
         "id": str(uuid.uuid4()),
         "summary": summary,
         "evidence": evidence,
@@ -238,12 +238,7 @@ def create_handoff(summary: str, evidence: list[str], requested_action: str) -> 
         "status": "open",
     }
 
-    audit_log_file = Path(os.getenv("AGENT_LOG", "logs/agent.log"))
-    audit_log_dir = audit_log_file.parent
-
-    audit_log_dir.mkdir(parents=True, exist_ok=True)
-    with open(audit_log_file, "a", encoding="utf-8") as file:
-        file.write(json.dumps(entry) + "\n")
+    write_to_audit_log(entry)
 
     return entry
 

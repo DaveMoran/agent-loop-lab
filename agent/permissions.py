@@ -32,12 +32,11 @@ class Context:
 
 def build_denial(tool: str, level: str, args: dict, reason: str) -> dict:
     return {
-        "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
         "error": "permission_denied",
         "event": "permission_denied",
         "tool": tool,
         "level": level,
-        "reason": f"Access to file {args["path"]} not allowed.",
+        "reason": reason,
         "suggestion": "Use tool create_handoff",
         "arguments": args,
     }

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from collections.abc import Callable
 
+from agent.audit import write_to_audit_log
 from agent.claude_raw import extract_tool_calls, tool_result
 from agent.tools import TOOLS
 from agent.permissions import Context, check
@@ -34,12 +35,7 @@ def run(
         for call in tool_calls:
             denial = check(ctx, call["name"], call["arguments"])
             if denial:
-                audit_log_file = Path(os.getenv("AGENT_LOG", "logs/agent.log"))
-                audit_log_dir = audit_log_file.parent
-
-                audit_log_dir.mkdir(parents=True, exist_ok=True)
-                with open(audit_log_file, "a", encoding="utf-8") as file:
-                    file.write(json.dumps(denial) + "\n")
+                write_to_audit_log(denial)
 
                 temp_calls.append(
                     {
