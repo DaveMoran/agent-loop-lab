@@ -41,17 +41,12 @@ def run(
                 with open(audit_log_file, "a", encoding="utf-8") as file:
                     file.write(json.dumps(denial) + "\n")
 
-                messages.append(
+                temp_calls.append(
                     {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "tool_result",
-                                "tool_use_id": call["id"],
-                                "is_error": True,
-                                "content": json.dumps(denial),
-                            }
-                        ],
+                        "type": "tool_result",
+                        "tool_use_id": call["id"],
+                        "is_error": True,
+                        "content": json.dumps(denial),
                     }
                 )
             else:
@@ -62,33 +57,31 @@ def run(
                     temp_calls.append(result)
                 except Exception as e:
                     # Code that runs for any other unexpected error
-                    messages.append(
+                    temp_calls.append(
                         {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "tool_result",
-                                    "is_error": True,
-                                    "content": str(e),
-                                }
-                            ],
+                            "type": "tool_result",
+                            "tool_use_id": call["id"],
+                            "is_error": True,
+                            "content": str(e),
                         }
                     )
 
         if model_response["stop_reason"] == "tool_use":
-            if len(temp_calls) > 1:
-                message = {
-                    "role": "user",
-                    "content": [],
-                }
+            message = {
+                "role": "user",
+                "content": [],
+            }
+            for call in temp_calls:
+                message["content"].append(call)
 
-                for call in temp_calls:
-                    message["content"].append(call["content"][0])
-
-                messages.append(message)
-            elif len(temp_calls) == 1:
-                messages.append(temp_calls[0])
+            messages.append(message)
         else:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": temp_calls,
+                }
+            )
             answer = model_response["content"][-1]["text"]
             break
 
