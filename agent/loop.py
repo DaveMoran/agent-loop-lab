@@ -33,7 +33,13 @@ def run(
             try:
                 denial = check(ctx, call["name"], call["arguments"])
                 if denial:
-                    write_to_audit_log(denial)
+                    write_to_audit_log(
+                        {
+                            "event": "permission_denied",
+                            **denial,
+                            "arguments": call["arguments"],
+                        }
+                    )
 
                     temp_calls.append(
                         {

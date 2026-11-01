@@ -29,28 +29,27 @@ class Context:
         return Permission[self.level.upper()]
 
 
-def build_denial(tool: str, level: str, args: dict, reason: str) -> dict:
+ESCALATE_SUGGESTION = (
+    "Use tool create_handoff to ask someone with a higher level to do this."
+)
+REFUSE_SUGGESTION = (
+    "This is out of scope at every level. Don't retry it and don't escalate it; "
+    "stay inside shop/."
+)
+
+
+def build_denial(tool: str, level: str, reason: str, refuse: bool = False) -> dict:
     return {
         "error": "permission_denied",
-        "event": "permission_denied",
         "tool": tool,
         "level": level,
         "reason": reason,
-        "suggestion": "Use tool create_handoff",
-        "arguments": args,
+        "suggestion": REFUSE_SUGGESTION if refuse else ESCALATE_SUGGESTION,
     }
 
 
 def check(ctx: Context, name: str, arguments: dict) -> dict | None:
     user_level = ctx.level
-
-    if ctx.permission_level < REQUIRED_LEVEL.get(name, Permission.INVESTIGATOR):
-        return build_denial(
-            name,
-            user_level,
-            arguments,
-            f"{user_level} ({ctx.permission_level}) does not have permission to run tool {name}.",
-        )
 
     if "path" in arguments:
         path = arguments["path"]
@@ -59,14 +58,19 @@ def check(ctx: Context, name: str, arguments: dict) -> dict | None:
         except ValueError:
             allowed = False
 
-        if allowed:
-            return None
-        else:
+        if not allowed:
             return build_denial(
                 name,
                 user_level,
-                arguments,
                 f"Access to file {path!r} not allowed: path must be a string inside shop/.",
+                refuse=True,
             )
+
+    if ctx.permission_level < REQUIRED_LEVEL.get(name, Permission.INVESTIGATOR):
+        return build_denial(
+            name,
+            user_level,
+            f"{user_level} ({ctx.permission_level}) does not have permission to run tool {name}.",
+        )
 
     return None
