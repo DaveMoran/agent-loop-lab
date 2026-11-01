@@ -54,7 +54,7 @@ def run(
                     result = tool_result(
                         call["id"], tools[call["name"]](**call["arguments"])
                     )
-                    temp_calls.append(result)
+                    temp_calls.append(result["content"][0])
                 except Exception as e:
                     # Code that runs for any other unexpected error
                     temp_calls.append(
