@@ -53,14 +53,20 @@ def check(ctx: Context, name: str, arguments: dict) -> dict | None:
         )
 
     if "path" in arguments:
-        if is_inside_shop(arguments["path"]):
+        path = arguments["path"]
+        try:
+            allowed = isinstance(path, str) and is_inside_shop(path)
+        except ValueError:
+            allowed = False
+
+        if allowed:
             return None
         else:
             return build_denial(
                 name,
                 user_level,
                 arguments,
-                f"Access to file {arguments["path"]} not allowed.",
+                f"Access to file {path!r} not allowed: path must be a string inside shop/.",
             )
 
     return None

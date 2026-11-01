@@ -43,7 +43,7 @@ def tool_definitions() -> list[dict]:
         },
         {
             "name": "create_handoff",
-            "description": "Creates a structued JSON object to be handed off to the Agent with context needed to perform an action",
+            "description": "Creates a structured JSON object to be handed off to a human with context needed to perform an action",
             "input_schema": HANDOFF_PARAMETERS,
         },
     ]

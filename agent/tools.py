@@ -69,7 +69,10 @@ RUN_QUERY_PARAMETERS: dict = {
 WRITE_FILE_PARAMETERS: dict = {
     "type": "object",
     "properties": {
-        "path": {"type": "string", "description": "Path to file that will be read"},
+        "path": {
+            "type": "string",
+            "description": "Path of the file to write, relative to the repo root and inside shop/",
+        },
         "content": {
             "type": "string",
             "description": "Content that will be written to the file",
@@ -88,7 +91,7 @@ HANDOFF_PARAMETERS: dict = {
         },
         "evidence": {
             "type": "array",
-            "description": "A list of strings that will be used to providde additional context for the Agent",
+            "description": "A list of strings that will be used to provide additional context for the human reviewing the handoff",
             "items": {
                 "type": "string",
             },
@@ -216,8 +219,9 @@ def write_file(path: str, content: str) -> dict:
         else:
             raise PermissionError("Error: File is not in supported directory")
     except FileNotFoundError:
-        print(path)
-        raise FileNotFoundError("Error: The file does not exist.")
+        raise FileNotFoundError(
+            f"Error: The directory for {path} does not exist. write_file creates files, not directories."
+        )
 
 
 def create_handoff(summary: str, evidence: list[str], requested_action: str) -> dict:
