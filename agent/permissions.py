@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import IntEnum
-from datetime import datetime, timezone
 
 from agent.tools import is_inside_shop
 

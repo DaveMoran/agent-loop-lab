@@ -8,7 +8,6 @@ import os
 import sqlite3
 import uuid
 from collections.abc import Callable
-from datetime import datetime, timezone
 from pathlib import Path
 
 from shop.db import db_path
