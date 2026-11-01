@@ -20,7 +20,7 @@ class Context:
     level: str = "investigator"
 
     def __post_init__(self):
-        if self.level.upper() not in Permission.__members__.keys():
+        if self.level.upper() not in Permission.__members__:
             raise ValueError(
                 f"Invalid level. Expected valid string value, got {self.level}"
             )
@@ -30,34 +30,39 @@ class Context:
         return Permission[self.level.upper()]
 
 
+def build_denial(tool: str, level: str, args: dict, reason: str) -> dict:
+    return {
+        "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+        "error": "permission_denied",
+        "event": "permission_denied",
+        "tool": tool,
+        "level": level,
+        "reason": f"Access to file {args["path"]} not allowed.",
+        "suggestion": "Use tool create_handoff",
+        "arguments": args,
+    }
+
+
 def check(ctx: Context, name: str, arguments: dict) -> dict | None:
     user_level = ctx.level
 
     if ctx.permission_level < REQUIRED_LEVEL.get(name, Permission.INVESTIGATOR):
-        return {
-            "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
-            "error": "permission_denied",
-            "event": "permission_denied",
-            "tool": name,
-            "level": user_level,
-            "reason": f"{user_level} ({ctx.permission_level}) does not have permission to run tool {name}.",
-            "suggestion": "Use tool create_handoff",
-            "arguments": arguments,
-        }
+        return build_denial(
+            name,
+            user_level,
+            arguments,
+            f"{user_level} ({ctx.permission_level}) does not have permission to run tool {name}.",
+        )
 
     if "path" in arguments:
         if is_inside_shop(arguments["path"]):
             return None
         else:
-            return {
-                "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
-                "error": "permission_denied",
-                "event": "permission_denied",
-                "tool": name,
-                "level": user_level,
-                "reason": f"Access to file {arguments["path"]} not allowed.",
-                "suggestion": "Use tool create_handoff",
-                "arguments": arguments,
-            }
+            return build_denial(
+                name,
+                user_level,
+                arguments,
+                f"Access to file {arguments["path"]} not allowed.",
+            )
 
     return None
