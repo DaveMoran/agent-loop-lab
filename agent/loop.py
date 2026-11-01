@@ -6,7 +6,7 @@ from collections.abc import Callable
 
 from agent.claude_raw import extract_tool_calls, tool_result
 from agent.tools import TOOLS
-from agent.permissions import check
+from agent.permissions import Context, check
 
 
 def run(
@@ -14,7 +14,7 @@ def run(
     call_model: Callable,
     tools: dict = TOOLS,
     max_turns: int = 10,
-    ctx=None,
+    ctx: Context = Context(),
 ) -> dict:
     stopped = "answer"
     messages = [{"role": "user", "content": prompt}]

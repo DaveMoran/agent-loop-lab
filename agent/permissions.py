@@ -1,8 +1,18 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import IntEnum
 from datetime import datetime, timezone
 
 from agent.tools import is_inside_shop
+
+
+class Permission(IntEnum):
+    INVESTIGATOR = 1
+    OPERATOR = 2
+
+
+REQUIRED_LEVEL: dict[str, Permission] = {
+    "write_file": Permission.OPERATOR,
+}
 
 
 @dataclass(frozen=True)
@@ -10,31 +20,31 @@ class Context:
     level: str = "investigator"
 
     def __post_init__(self):
-        if self.level.lower() not in ["investigator", "operator"]:
+        if self.level.upper() not in Permission.__members__.keys():
             raise ValueError(
-                f"Invalid level. Expected valid string value, got {type(self.level)}"
+                f"Invalid level. Expected valid string value, got {self.level}"
             )
+
+    @property
+    def permission_level(self) -> Permission:
+        return Permission[self.level.upper()]
 
 
 def check(ctx: Context, name: str, arguments: dict) -> dict | None:
-    is_read_only = True
-    if hasattr(ctx, "level") and ctx.level == "operator":
-        is_read_only = False
+    user_level = ctx.level
 
-    user_level = ctx.level if hasattr(ctx, "level") else "None"
+    if ctx.permission_level < REQUIRED_LEVEL.get(name, Permission.INVESTIGATOR):
+        return {
+            "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+            "error": "permission_denied",
+            "event": "permission_denied",
+            "tool": name,
+            "level": user_level,
+            "reason": f"{user_level} ({ctx.permission_level}) does not have permission to run tool {name}.",
+            "suggestion": "Use tool create_handoff",
+            "arguments": arguments,
+        }
 
-    if name == "write_file":
-        if is_read_only:
-            return {
-                "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
-                "error": "permission_denied",
-                "event": "permission_denied",
-                "tool": name,
-                "level": user_level,
-                "reason": f"{user_level} does not have permission to run tool f{name}",
-                "suggestion": "Use tool create_handoff",
-                "arguments": arguments,
-            }
     if "path" in arguments:
         if is_inside_shop(arguments["path"]):
             return None
