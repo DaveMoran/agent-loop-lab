@@ -157,7 +157,7 @@ def matches_level(level: str, json: dict) -> bool:
 def read_file(path: str) -> str:
     try:
         if is_inside_shop(path):
-            with open(path) as file:
+            with open(ROOT / path) as file:
                 content = file.read()
                 return content
         else:

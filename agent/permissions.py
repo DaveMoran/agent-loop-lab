@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime, timezone
 
-from agent.tools import read_file
+from agent.tools import is_inside_shop
 
 
 @dataclass(frozen=True)
@@ -36,23 +36,9 @@ def check(ctx: Context, name: str, arguments: dict) -> dict | None:
                 "arguments": arguments,
             }
     if "path" in arguments:
-        try:
-            file = read_file(arguments["path"])
-        except FileNotFoundError as e:
-            if is_read_only is False:
-                return None
-            else:
-                return {
-                    "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
-                    "error": "permission_denied",
-                    "event": "permission_denied",
-                    "tool": name,
-                    "level": user_level,
-                    "reason": f"Access to file {arguments["path"]} not allowed.",
-                    "suggestion": "Use tool create_handoff",
-                    "arguments": arguments,
-                }
-        except PermissionError as e:
+        if is_inside_shop(arguments["path"]):
+            return None
+        else:
             return {
                 "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
                 "error": "permission_denied",
