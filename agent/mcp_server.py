@@ -4,6 +4,7 @@ from mcp.types import ToolAnnotations
 from pydantic import Field
 
 from mcp.server import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
 import agent.tools as tools
 
 
@@ -36,7 +37,10 @@ def build_server(level: str = "investigator") -> MCPServer:
     def read_file(
         path: Annotated[str, Field(description="Location of the file to be read")],
     ):
-        return tools.read_file(path)
+        try:
+            return tools.read_file(path)
+        except FileNotFoundError:
+            raise ToolError(f"File {path} not found")
 
     @mcp.tool(
         title="Write to a file",
