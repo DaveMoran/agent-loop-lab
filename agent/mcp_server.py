@@ -1,3 +1,8 @@
+from typing import Annotated
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
+
 from mcp.server import MCPServer
 import agent.tools as tools
 
@@ -7,8 +12,17 @@ def build_server(level: str = "investigator") -> MCPServer:
 
     mcp = MCPServer(level)
 
-    @mcp.tool()
-    def search_logs(query: str | None, level: str | None = None, limit: int = 20):
+    @mcp.tool(
+        title="Search the logs",
+        description="Search the logs by a specific query and level of log",
+        annotations=ToolAnnotations(read_only_hint=True, open_world_hint=False)
+    )
+    def search_logs(
+        query: Annotated[str, Field(description="Title or author to search for.")],
+        level: Annotated[str, Field(description="Level of severity of the log.")],
+        limit: Annotated[int, Field(ge=1, description="Maximum number of results.")] = 20
+    ):
+        """Search the logs by a specific query and level of log"""
         return tools.search_logs(query, level, limit)
 
     @mcp.tool()
