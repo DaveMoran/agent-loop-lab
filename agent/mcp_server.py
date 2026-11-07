@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -20,7 +20,7 @@ def build_server(level: str = "investigator") -> MCPServer:
     )
     def search_logs(
         query: Annotated[str, Field(description="Title or author to search for.")],
-        level: Annotated[str | None, Field(description="Level of severity of the log.")] = None,
+        level: Literal["INFO", "ERROR", "WARN"] = None,
         limit: Annotated[
             int, Field(ge=1, description="Maximum number of results.")
         ] = 20,
