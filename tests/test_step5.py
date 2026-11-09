@@ -395,6 +395,7 @@ def test_out_of_scope_paths_are_refused_with_no_handoff(srv, audit_log, level, n
     result = call(srv.build_server(level), name, arguments)
     assert result.is_error
     message = text_of(result)
+    print(message)
     assert "permission_denied" in message
     assert "create_handoff" not in message, "out of scope at every level: refuse, don't suggest escalating"
     assert SENTINEL not in message

@@ -1,12 +1,12 @@
 from typing import Annotated, Literal
 
-import json
-
 from agent.audit import write_to_audit_log
 from agent.permissions import Context, check
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
+
+from mcp import MCPError
 
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
@@ -43,7 +43,13 @@ def build_server(level: str = "investigator") -> MCPServer:
         path: Annotated[str, Field(description="Location of the file to be read")],
     ):
         try:
-            return tools.read_file(path)
+            if tools.is_inside_shop(path):
+                tools.read_file(path)
+            else:
+                write_to_audit_log(
+                    {"event": "permission_denied", "arguments": {"path": path}}
+                )
+                raise ToolError("permission_denied, file not found")
         except FileNotFoundError:
             raise ToolError(f"File {path} not found")
 
@@ -62,6 +68,12 @@ def build_server(level: str = "investigator") -> MCPServer:
     ):
         arguments = {"path": path, "content": content}
         denial = check(Context(level), "write_file", arguments)
+
+        if not tools.is_inside_shop(path):
+            write_to_audit_log(
+                {"event": "permission_denied", "arguments": {"path": path}}
+            )
+            raise ToolError("permission_denied, file not found")
 
         if denial:
             write_to_audit_log(
