@@ -8,6 +8,8 @@ from pydantic import Field
 
 from mcp import MCPError
 
+import os
+
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 import agent.tools as tools
@@ -114,7 +116,7 @@ def build_server(level: str = "investigator") -> MCPServer:
     return mcp
 
 
-mcp = build_server()
+mcp = build_server(level=os.environ.get('AGENT_LEVEL', 'investigator'))
 
 
 if __name__ == "__main__":
