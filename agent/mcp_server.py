@@ -1,5 +1,10 @@
 from typing import Annotated, Literal
 
+import json
+
+from agent.audit import write_to_audit_log
+from agent.permissions import Context, check
+
 from mcp.types import ToolAnnotations
 from pydantic import Field
 
@@ -55,6 +60,16 @@ def build_server(level: str = "investigator") -> MCPServer:
             str, Field(description="Content that will be written to the file")
         ],
     ):
+        arguments = {"path": path, "content": content}
+        denial = check(Context(level), "write_file", arguments)
+
+        if denial:
+            write_to_audit_log(
+                {"event": "permission_denied", **denial, "arguments": arguments}
+            )
+
+            raise ToolError("permission_denied, escalate via create_handoff")
+
         return tools.write_file(path, content)
 
     @mcp.tool(
