@@ -6,8 +6,6 @@ from agent.permissions import Context, check
 from mcp.types import ToolAnnotations
 from pydantic import Field
 
-from mcp import MCPError
-
 import os
 
 from mcp.server import MCPServer
