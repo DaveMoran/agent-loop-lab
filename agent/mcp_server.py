@@ -44,7 +44,7 @@ def build_server(level: str = "investigator") -> MCPServer:
     ):
         try:
             if tools.is_inside_shop(path):
-                tools.read_file(path)
+                return tools.read_file(path)
             else:
                 write_to_audit_log(
                     {"event": "permission_denied", "arguments": {"path": path}}

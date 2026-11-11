@@ -1,20 +1,7 @@
-"""to_tool_result(tool_use_id: str, call_tool_result) -> dict
-        - Turns the SDK's CallToolResult into one Claude tool_result block:
-          {"type": "tool_result", "tool_use_id": ..., "content": <str>, "is_error": <bool>}
-          where content holds the result's text. is_error mirrors the server's isError.
-    run_with_mcp(prompt, call_model, server, max_turns=10) -> dict
-        - The Step 4 loop, with the tools living behind an MCP server. `server` is
-          anything mcp.Client accepts (an MCPServer object in these tests).
-        - call_model is called as call_model(messages, tools), where tools is the list
-          from tool_definitions_from_mcp. The client discovers the tools; you don't
-          hand-write them a second time.
-        - Same return shape as loop.run: {"answer", "messages", "turns", "stopped"},
-          "stopped" is "answer" or "max_turns", all results of a turn go back in one
-          user message in call order.
-        - It has no ctx: the level is the server's. It must not add a second gate with a
-          level of its own (an operator server's write goes through), and a denial is
-          logged once, by the server.
-        - It's a plain (synchronous) function; how you bridge to the async SDK is up to you."""
+from anyio.from_thread import start_blocking_portal
+from mcp import Client
+
+from agent.claude_raw import extract_tool_calls
 
 
 def tool_definitions_from_mcp(list_tools_result) -> list[dict]:
@@ -35,10 +22,60 @@ def to_tool_result(tool_use_id: str, call_tool_result) -> dict:
     return {
         "type": "tool_result", 
         "tool_use_id": tool_use_id,
-        "content": call_tool_result.content[0].text, 
+        "content": "\n".join(getattr(c, "text", "") for c in call_tool_result.content), 
         "is_error": call_tool_result.is_error
     }
 
 
 def run_with_mcp(prompt, call_model, server, max_turns=10) -> dict:
-    return {}
+    stopped = "max_turns"
+    answer = "Max turns reached (" + str(max_turns) + ")"
+    messages = [{"role": "user", "content": prompt}]
+    turns = 0
+
+    with start_blocking_portal() as portal:
+        with portal.wrap_async_context_manager(Client(server)) as client:
+            listed = portal.call(client.list_tools)
+            tools = tool_definitions_from_mcp(listed)
+
+            def execute(name, arguments):
+                return portal.call(client.call_tool, name, arguments)
+        
+            while turns < max_turns:
+                model_response = call_model(messages, tools)
+                turns += 1
+        
+                if hasattr(model_response, "model_dump"):
+                    model_response = model_response.model_dump()
+        
+                tool_calls = extract_tool_calls(model_response)
+                messages.append({"role": "assistant", "content": model_response["content"]})
+                temp_calls = []
+
+                for call in tool_calls:
+                    result = execute(call["name"], call["arguments"])
+                    tool_result = to_tool_result(call["id"], result)
+                    temp_calls.append(tool_result)
+
+                if model_response["stop_reason"] == "tool_use":
+                    message = {
+                        "role": "user",
+                        "content": [],
+                    }
+                    for call in temp_calls:
+                        message["content"].append(call)
+        
+                    messages.append(message)
+                else:
+                    answer = model_response["content"][-1]["text"]
+                    stopped = "answer"
+                    break
+
+        
+            return {
+                "answer": answer,
+                "messages": messages,
+                "turns": turns,
+                "stopped": stopped,
+            }
+        
