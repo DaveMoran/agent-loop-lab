@@ -15,9 +15,10 @@ if __name__ == "__main__":
     load_dotenv()
     client = Anthropic()
 
-    prompt = (
-        "The PM wants each product's stock shown in search results. Find where search is implemented in shop/ and make the change."
-    )
+    prompt = """In shop/app.py, search_products() runs "SELECT * FROM products WHERE name LIKE ?".
+        Change that query to name its columns explicitly — id, name, price, stock — and update
+        the functions docstring to say that results include each products current stock.
+        Apply the edit to shop/app.py."""
 
     def messages_wrapper(messages: list[dict], tools) -> Message:
         return client.messages.create(
