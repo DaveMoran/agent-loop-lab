@@ -1,21 +1,14 @@
-"""Step 5 acceptance tests, part 2: evidence from the Inspector and one real run. No API calls.
+"""Step 5 acceptance tests, part 2: evidence from one real run through MCP. No API calls.
 
-Commit three things in artifacts/step5/:
+Commit two things in artifacts/step5/:
 
-    inspector.md          Your notes from calling each tool by hand in the MCP Inspector.
-                          One section per tool you called: search_logs, read_file and
-                          create_handoff at least, plus one denied call (write_file on an
-                          investigator server, or a path outside shop/). For each, paste
-                          the result the Inspector showed (trimmed is fine) and one line on
-                          what the Inspector showed you that your loop never did.
     run.json              run_with_mcp()'s return value from one real Claude run against an
                           INVESTIGATOR server: Step 4's scenario again, a denied write_file
                           followed by create_handoff.
     agent.log             The audit log from that run (AGENT_LOG), unedited.
-    where-the-check-lives.md
-                          At least 150 words: where the permission check lives now (server,
-                          client, or both and what each one does), and your defence of it.
-                          Say what happens when a client other than your loop connects.
+
+The Inspector session and the defence of where the permission check lives are checked by
+the Step 5 quiz, not here: a test can see that a note exists, not whether it's right.
 
 Suggested setup for the run:
     rm -f artifacts/step5/agent.log
@@ -33,8 +26,6 @@ import pytest
 ARTIFACTS = Path(__file__).resolve().parents[1] / "artifacts" / "step5"
 RUN_FILE = ARTIFACTS / "run.json"
 LOG_FILE = ARTIFACTS / "agent.log"
-INSPECTOR_FILE = ARTIFACTS / "inspector.md"
-NOTE_FILE = ARTIFACTS / "where-the-check-lives.md"
 SECRET_PATTERN = re.compile(r"sk-[A-Za-z0-9_\-]{20,}|sk-ant-[A-Za-z0-9_\-]{10,}")
 
 
@@ -74,25 +65,6 @@ def calls_and_results(run):
 def content_text(result):
     content = result["content"]
     return content if isinstance(content, str) else json.dumps(content)
-
-
-# --------------------------------------------------------------------------
-# The Inspector notes and the written defence
-# --------------------------------------------------------------------------
-def test_inspector_notes_cover_each_tool():
-    assert INSPECTOR_FILE.exists(), "missing artifacts/step5/inspector.md"
-    text = INSPECTOR_FILE.read_text()
-    for name in ("search_logs", "read_file", "create_handoff"):
-        assert name in text, f"inspector.md has nothing on {name}"
-    assert "permission_denied" in text, "include one denied call as the Inspector showed it"
-
-
-def test_where_the_check_lives_is_written_down():
-    assert NOTE_FILE.exists(), "missing artifacts/step5/where-the-check-lives.md"
-    text = NOTE_FILE.read_text()
-    assert len(text.split()) >= 150, "at least 150 words"
-    lowered = text.lower()
-    assert "server" in lowered and "client" in lowered
 
 
 # --------------------------------------------------------------------------
@@ -151,6 +123,6 @@ def test_log_and_run_describe_the_same_run(run, log):
 
 
 def test_artifacts_contain_no_api_keys():
-    for path in (RUN_FILE, LOG_FILE, INSPECTOR_FILE, NOTE_FILE):
+    for path in (RUN_FILE, LOG_FILE):
         if path.exists():
             assert not SECRET_PATTERN.search(path.read_text()), f"{path.name} looks like it contains an API key"
