@@ -52,6 +52,8 @@ def build_server(level: str = "investigator") -> MCPServer:
                 raise ToolError("permission_denied, file not found")
         except FileNotFoundError:
             raise ToolError(f"File {path} not found")
+        except OSError as e:
+            raise ToolError(e)
 
     @mcp.tool(
         title="Write to a file",
