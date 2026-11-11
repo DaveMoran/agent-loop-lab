@@ -39,6 +39,17 @@ def run_with_mcp(prompt, call_model, server, max_turns=10) -> dict:
             tools = tool_definitions_from_mcp(listed)
 
             def execute(name, arguments):
+                # Client(raise_exceptions=False) is the default, so per-call
+                # failures - an unknown tool, a permission denial, a bad path -
+                # come back as a CallToolResult with is_error set, and go to the
+                # model as a tool_result it can act on.
+                #
+                # Protocol errors (MCPError, which mcp/server/.../tools/base.py
+                # re-raises rather than wrapping) and a dead transport RAISE
+                # instead. Those are session-level: the next call fails the same
+                # way, so turning them into a tool_result would only tell the
+                # model to retry something impossible until max_turns. They are
+                # left to propagate out of run_with_mcp deliberately.
                 return portal.call(client.call_tool, name, arguments)
         
             while turns < max_turns:
