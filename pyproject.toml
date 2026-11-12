@@ -6,7 +6,7 @@ requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
-agent = ["openai", "anthropic", "httpx", "python-dotenv"]
+agent = ["openai", "anthropic", "httpx", "python-dotenv", "mcp==2.3.0"]
 dev = ["pytest"]
 
 [tool.setuptools]
