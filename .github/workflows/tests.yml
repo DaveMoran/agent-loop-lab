@@ -20,8 +20,9 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      # The suite never imports the OpenAI/Anthropic SDKs, so only the dev extra is needed.
-      - run: pip install -e ".[dev]"
+      # Step 5's tests drive a real MCP client, so the agent extra (which holds the
+      # pinned mcp SDK, and anyio through it) is needed as well as dev.
+      - run: pip install -e ".[agent,dev]"
 
       # No API keys are configured on purpose: the tests must pass offline.
       - run: python -m pytest -q
