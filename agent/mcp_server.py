@@ -142,7 +142,10 @@ def build_server(level: str = "investigator") -> MCPServer:
                 "requested_action": requested_action,
             },
         )
-        return tools.create_handoff(summary, evidence, requested_action)
+        try:
+            return tools.create_handoff(summary, evidence, requested_action)
+        except ValueError as exc:
+            raise ToolError(str(exc))
 
     return mcp
 
