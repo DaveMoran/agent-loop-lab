@@ -225,11 +225,16 @@ def write_file(path: str, content: str) -> dict:
 
 
 def create_handoff(summary: str, evidence: list[str], requested_action: str) -> dict:
+    if not isinstance(evidence, list):
+        raise ValueError("Evidence is not the right data type")
+    
+    cleaned_evidence = [s for s in evidence if s]
+
     if not summary.strip():
         raise ValueError("Summary can not be empty")
     if not requested_action.strip():
         raise ValueError("Requested Action can not be empty")
-    if len(evidence) < 1 or not isinstance(evidence, list):
+    if len(cleaned_evidence) < 1:
         raise ValueError("Evidence can not be empty")
 
     entry = {
